@@ -7,6 +7,8 @@
 <meta name="description" content="Desenvolvemos sistemas exclusivos e aplicativos PWA para pequenas e médias empresas. Baseados no Rio de Janeiro, com projetos entregues e produtos no ar.">
 <meta property="og:title" content="CPZ Digital — Tecnologia sob medida">
 <meta property="og:description" content="Sistemas exclusivos, apps PWA e automações. Do projeto personalizado ao produto escalável.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#080b12; --bg2:#0c1019; --bg3:#111827; --bg4:#161e30;
@@ -28,8 +30,12 @@ nav{
   background:rgba(8,11,18,.92);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
 }
-.nav-logo{ text-decoration:none; display:flex; align-items:center; }
-.nav-logo img{ height:32px; }
+.nav-logo{
+  font-family:'Rajdhani',sans-serif;
+  font-size:1.35rem;font-weight:700;letter-spacing:.06em;text-decoration:none;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 .nav-links{display:flex;gap:1.75rem;list-style:none;align-items:center;}
 .nav-links a{color:var(--muted);text-decoration:none;font-size:.875rem;transition:color .2s;}
 .nav-links a:hover{color:var(--text);}
@@ -312,8 +318,13 @@ footer{
   background:var(--bg2);border-top:1px solid var(--border);
   padding:2.5rem 1.5rem;text-align:center;
 }
-.footer-logo{ margin-bottom:.75rem; display:flex; justify-content:center; }
-.footer-logo img{ height:30px; }
+.footer-logo{
+  font-family:'Rajdhani',sans-serif;
+  font-size:1.35rem;font-weight:700;letter-spacing:.06em;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:.75rem;
+}
 .footer-links{display:flex;justify-content:center;gap:1.75rem;flex-wrap:wrap;margin-bottom:1rem;}
 .footer-links a{color:var(--muted);text-decoration:none;font-size:.8rem;transition:color .2s;}
 .footer-links a:hover{color:var(--text);}
@@ -324,7 +335,7 @@ footer{
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo"><img src="cpz-logo.png" alt="CPZ Digital"></a>
+  <a href="#" class="nav-logo">CPZ Digital</a>
   <ul class="nav-links">
     <li><a href="#sobre">Sobre</a></li>
     <li><a href="#solucoes">Soluções</a></li>
@@ -332,7 +343,7 @@ footer{
     <li><a href="#produtos">Produtos</a></li>
     <li><a href="#stack">Tecnologias</a></li>
     <li><a href="#contato">Contato</a></li>
-    <li><a href="https://wa.me/5521967455648" class="nav-cta" target="_blank">💬 WhatsApp</a></li>
+    <li><a href="https://wa.me/5521967455648" class="nav-cta" target="_blank" rel="noopener">💬 WhatsApp</a></li>
   </ul>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -346,7 +357,7 @@ footer{
   <a href="#produtos" onclick="closeMenu()">Produtos</a>
   <a href="#stack" onclick="closeMenu()">Tecnologias</a>
   <a href="#contato" onclick="closeMenu()">Contato</a>
-  <a href="https://wa.me/5521967455648" class="nav-cta" target="_blank">💬 Falar no WhatsApp</a>
+  <a href="https://wa.me/5521967455648" class="nav-cta" target="_blank" rel="noopener">💬 Falar no WhatsApp</a>
 </div>
 
 <!-- HERO -->
@@ -626,7 +637,7 @@ footer{
     <div class="produtos-grid">
 
       <!-- PropostaSmart -->
-      <a class="proj-card live" href="https://propostasmart.cpzdigital.com.br/planos.html" target="_blank">
+      <a class="proj-card live" href="https://propostasmart.cpzdigital.com.br/planos.html" target="_blank" rel="noopener">
         <div class="proj-top">
           <div class="status-badge badge-live"><span class="dot"></span> No ar</div>
           <span class="proj-icon">📋</span>
@@ -654,7 +665,7 @@ footer{
       </a>
 
       <!-- AppSorteio -->
-      <a class="proj-card live" href="https://appsorteio.cpzdigital.com.br" target="_blank">
+      <a class="proj-card live" href="https://appsorteio.cpzdigital.com.br" target="_blank" rel="noopener">
         <div class="proj-top">
           <div class="status-badge badge-live"><span class="dot"></span> No ar</div>
           <span class="proj-icon">🏆</span>
@@ -820,13 +831,13 @@ footer{
           <div class="contato-card-label">E-mail</div>
           <div class="contato-card-value">contato@cpzdigital.com.br</div>
         </a>
-        <a class="contato-card" href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank">
+        <a class="contato-card" href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank" rel="noopener">
           <div class="contato-card-icon">💬</div>
           <div class="contato-card-label">WhatsApp</div>
           <div class="contato-card-value">(21) 96745-5648</div>
         </a>
       </div>
-      <a href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank" class="btn btn-primary" style="font-size:1rem;padding:.9rem 2.25rem;">
+      <a href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:1rem;padding:.9rem 2.25rem;">
         💬 Falar no WhatsApp agora
       </a>
     </div>
@@ -835,14 +846,14 @@ footer{
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo"><img src="cpz-logo.png" alt="CPZ Digital"></div>
+  <div class="footer-logo">CPZ Digital</div>
   <div class="footer-links">
     <a href="#sobre">Sobre</a>
     <a href="#solucoes">Soluções</a>
     <a href="#entregas">Projetos</a>
     <a href="#produtos">Produtos</a>
     <a href="#contato">Contato</a>
-    <a href="https://propostasmart.cpzdigital.com.br/privacy.html" target="_blank">Privacidade</a>
+    <a href="https://propostasmart.cpzdigital.com.br/privacy.html" target="_blank" rel="noopener">Privacidade</a>
   </div>
   <div class="footer-copy">© 2026 CPZ Digital · CNPJ 58.589.970/0001-54 · Rio de Janeiro, RJ</div>
 </footer>
