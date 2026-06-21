@@ -28,11 +28,8 @@ nav{
   background:rgba(8,11,18,.92);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
 }
-.nav-logo{
-  font-size:1.1rem;font-weight:900;letter-spacing:.04em;text-decoration:none;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
+.nav-logo{ text-decoration:none; display:flex; align-items:center; }
+.nav-logo img{ height:32px; }
 .nav-links{display:flex;gap:1.75rem;list-style:none;align-items:center;}
 .nav-links a{color:var(--muted);text-decoration:none;font-size:.875rem;transition:color .2s;}
 .nav-links a:hover{color:var(--text);}
@@ -315,12 +312,8 @@ footer{
   background:var(--bg2);border-top:1px solid var(--border);
   padding:2.5rem 1.5rem;text-align:center;
 }
-.footer-logo{
-  font-size:1.1rem;font-weight:900;letter-spacing:.04em;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:.75rem;
-}
+.footer-logo{ margin-bottom:.75rem; display:flex; justify-content:center; }
+.footer-logo img{ height:30px; }
 .footer-links{display:flex;justify-content:center;gap:1.75rem;flex-wrap:wrap;margin-bottom:1rem;}
 .footer-links a{color:var(--muted);text-decoration:none;font-size:.8rem;transition:color .2s;}
 .footer-links a:hover{color:var(--text);}
@@ -331,7 +324,7 @@ footer{
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">CPZ Digital</a>
+  <a href="#" class="nav-logo"><img src="cpz-logo.png" alt="CPZ Digital"></a>
   <ul class="nav-links">
     <li><a href="#sobre">Sobre</a></li>
     <li><a href="#solucoes">Soluções</a></li>
@@ -843,7 +836,7 @@ footer{
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">CPZ Digital</div>
+  <div class="footer-logo"><img src="cpz-logo.png" alt="CPZ Digital"></div>
   <div class="footer-links">
     <a href="#sobre">Sobre</a>
     <a href="#solucoes">Soluções</a>
