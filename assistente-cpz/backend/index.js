@@ -9,6 +9,19 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
+// CORS — permite requisições do site cpzdigital.com e localhost
+app.use((req, res, next) => {
+  const allowed = ['https://cpzdigital.com', 'https://www.cpzdigital.com', 'http://localhost'];
+  const origin = req.headers.origin;
+  if (!origin || allowed.some(o => origin.startsWith(o))) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
 // ── Clientes externos ──────────────────────────────────────────────────────────
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
@@ -54,6 +67,21 @@ async function saveMessages(sessionId, channel, visitorMsg, assistantMsg, visito
     { session_id: sessionId, sender: 'assistente', message: assistantMsg, channel },
   ]);
 }
+
+// ── ROTA PRINCIPAL — Widget customizado do site ───────────────────────────────
+app.post('/chat', async (req, res) => {
+  const { message, sessionId } = req.body;
+  if (!message || !sessionId) return res.status(400).json({ error: 'message e sessionId obrigatórios' });
+
+  try {
+    const reply = await getAIResponse(sessionId, message);
+    await saveMessages(sessionId, 'site', message, reply);
+    res.json({ reply });
+  } catch (err) {
+    console.error('[Chat] Erro:', err.message);
+    res.status(500).json({ reply: 'Desculpe, tive um problema técnico. Tente novamente em instantes.' });
+  }
+});
 
 // ── TAWK.TO WEBHOOK ───────────────────────────────────────────────────────────
 // Configure em: Tawk.to → Administration → Integrations → Webhooks
