@@ -303,13 +303,14 @@ section{padding:5.5rem 1.5rem;}
 #contato{background:var(--bg3);}
 .contato-inner{max-width:680px;margin:0 auto;text-align:center;}
 .contato-inner .section-desc{max-width:100%;margin:0 auto 2.5rem;}
-.contato-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2.5rem;}
+.contato-cards{display:flex;justify-content:center;margin-bottom:2.5rem;}
 @media(max-width:500px){.contato-cards{grid-template-columns:1fr;}}
 .contato-card{
   background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:1.5rem;text-align:center;
+  border-radius:14px;padding:2rem 3rem;text-align:center;
   text-decoration:none;color:inherit;
   transition:border-color .2s,transform .2s;
+  min-width:280px;
 }
 .contato-card:hover{border-color:var(--accent2);transform:translateY(-3px);}
 .contato-card-icon{font-size:1.75rem;margin-bottom:.5rem;}
@@ -346,7 +347,7 @@ footer{
     <li><a href="#produtos">Produtos</a></li>
     <li><a href="#stack">Tecnologias</a></li>
     <li><a href="#contato">Contato</a></li>
-    <li><a href="https://wa.me/5521967455648" class="nav-cta" target="_blank" rel="noopener">💬 WhatsApp</a></li>
+    <li><a href="mailto:contato@cpzdigital.com.br" class="nav-cta">✉️ E-mail</a></li>
   </ul>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -360,7 +361,7 @@ footer{
   <a href="#produtos" onclick="closeMenu()">Produtos</a>
   <a href="#stack" onclick="closeMenu()">Tecnologias</a>
   <a href="#contato" onclick="closeMenu()">Contato</a>
-  <a href="https://wa.me/5521967455648" class="nav-cta" target="_blank" rel="noopener">💬 Falar no WhatsApp</a>
+  <a href="mailto:contato@cpzdigital.com.br" class="nav-cta">✉️ Enviar E-mail</a>
 </div>
 
 <!-- HERO -->
@@ -465,7 +466,7 @@ footer{
           <div class="sobre-card-icon">💬</div>
           <div>
             <div class="sobre-card-title">Suporte direto</div>
-            <div class="sobre-card-desc">Comunicação direta via WhatsApp com o desenvolvedor responsável. Sem chamado de suporte, sem fila de espera.</div>
+            <div class="sobre-card-desc">Comunicação direta via e-mail com o desenvolvedor responsável. Sem chamado de suporte, sem fila de espera.</div>
           </div>
         </div>
       </div>
@@ -726,7 +727,7 @@ footer{
         <div class="proj-top">
           <div class="status-badge badge-dev"><span class="dot"></span> Em desenvolvimento</div>
           <span class="proj-icon">🤖</span>
-          <div class="proj-nome">Jarvis CPZ</div>
+          <div class="proj-nome">Assistente CPZ</div>
           <div class="proj-tagline">Bot · Automação via WhatsApp</div>
         </div>
         <div class="proj-body">
@@ -828,20 +829,9 @@ footer{
       <div class="section-label">Contato</div>
       <h2 class="section-title">Vamos conversar?</h2>
       <p class="section-desc">Tem um projeto em mente, quer implantar um dos nossos produtos ou só quer entender como podemos ajudar? Entre em contato — respondemos rápido.</p>
-      <div class="contato-cards">
-        <a class="contato-card" href="mailto:contato@cpzdigital.com.br">
-          <div class="contato-card-icon">✉️</div>
-          <div class="contato-card-label">E-mail</div>
-          <div class="contato-card-value">contato@cpzdigital.com.br</div>
-        </a>
-        <a class="contato-card" href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank" rel="noopener">
-          <div class="contato-card-icon">💬</div>
-          <div class="contato-card-label">WhatsApp</div>
-          <div class="contato-card-value">(21) 96745-5648</div>
-        </a>
-      </div>
-      <a href="https://wa.me/5521967455648?text=Olá,%20vim%20pelo%20site%20da%20CPZ%20Digital" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:1rem;padding:.9rem 2.25rem;">
-        💬 Falar no WhatsApp agora
+      <p style="color:var(--muted);font-size:.95rem;margin-bottom:1.5rem;">contato@cpzdigital.com.br</p>
+      <a href="mailto:contato@cpzdigital.com.br" class="btn btn-primary" style="font-size:1rem;padding:.9rem 2.25rem;">
+        ✉️ Enviar e-mail agora
       </a>
     </div>
   </div>
@@ -860,6 +850,20 @@ footer{
   </div>
   <div class="footer-copy">© 2026 CPZ Digital · CNPJ 58.589.970/0001-54 · Rio de Janeiro, RJ</div>
 </footer>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6a3a96d4ad14dc1d441d01e1/1jrqdqbki';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 <script>
 function toggleMenu() {

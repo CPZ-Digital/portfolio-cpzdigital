@@ -1,0 +1,13 @@
+# Variáveis de ambiente — NUNCA commitar
+.env
+assistente-cpz/backend/.env
+
+# Dependências
+node_modules/
+
+# Wrangler / Cloudflare
+.wrangler/
+
+# Sistema
+.DS_Store
+Thumbs.db
