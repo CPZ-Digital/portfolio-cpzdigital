@@ -11,7 +11,7 @@ app.use(express.json());
 
 // CORS — permite requisições do site cpzdigital.com e localhost
 app.use((req, res, next) => {
-  const allowed = ['https://cpzdigital.com', 'https://www.cpzdigital.com', 'http://localhost'];
+  const allowed = ['https://cpzdigital.com.br', 'https://www.cpzdigital.com.br', 'https://cpzdigital.com', 'https://www.cpzdigital.com', 'http://localhost'];
   const origin = req.headers.origin;
   if (!origin || allowed.some(o => origin.startsWith(o))) {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
