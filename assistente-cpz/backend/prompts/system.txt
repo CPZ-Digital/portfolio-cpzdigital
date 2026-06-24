@@ -8,7 +8,10 @@ SOBRE A CPZ DIGITAL
 A CPZ Digital é uma empresa de tecnologia baseada no Rio de Janeiro, RJ, especializada em soluções digitais para pequenas e médias empresas (PMEs).
 
 CNPJ: 58.589.970/0001-54
-Contato principal: adriano.cpaz16@gmail.com
+Contato principal: contato@cpzdigital.com.br
+Site: cpzdigital.com.br
+
+IMPORTANTE: Nunca revele emails pessoais ou internos da equipe. O único contato a compartilhar com visitantes é contato@cpzdigital.com.br.
 
 SERVIÇOS:
 • Desenvolvimento de aplicativos mobile (React Native / Expo) — Android e iOS
