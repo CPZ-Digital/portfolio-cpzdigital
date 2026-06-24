@@ -3,6 +3,7 @@ const express = require('express');
 const Groq = require('groq-sdk');
 const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
@@ -27,6 +28,34 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 const SYSTEM_PROMPT = fs.readFileSync(path.join(__dirname, 'prompts', 'system.txt'), 'utf8');
+
+// ── Email (notificação de lead para Adriano) ───────────────────────────────────
+const mailer = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
+});
+
+async function notifyLead(sessionId, channel, leadInfo) {
+  try {
+    await mailer.sendMail({
+      from: `"Assistente CPZ" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER,
+      subject: `🔔 Novo lead via ${channel} — ${leadInfo}`,
+      html: `
+        <h2 style="color:#3b82f6">Novo lead capturado pela Cris!</h2>
+        <p><b>Canal:</b> ${channel}</p>
+        <p><b>Sessão:</b> ${sessionId}</p>
+        <p><b>Dados coletados:</b> ${leadInfo}</p>
+        <p><b>Horário:</b> ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</p>
+        <hr/>
+        <p style="color:#64748b;font-size:12px">Ver conversa completa no Supabase → conversations</p>
+      `
+    });
+    console.log(`[Lead] Email enviado para Adriano — ${leadInfo}`);
+  } catch (err) {
+    console.error('[Lead] Erro ao enviar email:', err.message);
+  }
+}
 
 // Histórico em memória por sessão (limpa ao reiniciar — ok para conversas curtas)
 const sessionHistory = new Map();
@@ -76,7 +105,16 @@ app.post('/chat', async (req, res) => {
   try {
     const reply = await getAIResponse(sessionId, message);
     await saveMessages(sessionId, 'site', message, reply);
-    res.json({ reply });
+
+    // Detecta se a Cris acabou de fechar um lead (coletou nome + contato)
+    if (reply.includes('%%LEAD%%')) {
+      const match = reply.match(/%%LEAD%%(.+?)%%/);
+      const leadInfo = match ? match[1] : 'dados na conversa';
+      await notifyLead(sessionId, 'site', leadInfo);
+    }
+
+    // Remove marcador antes de enviar para o usuário
+    res.json({ reply: reply.replace(/%%LEAD%%.*?%%/g, '').trim() });
   } catch (err) {
     console.error('[Chat] Erro:', err.message);
     res.status(500).json({ reply: 'Desculpe, tive um problema técnico. Tente novamente em instantes.' });
