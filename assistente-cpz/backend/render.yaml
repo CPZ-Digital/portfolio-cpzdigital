@@ -4,7 +4,7 @@ services:
     runtime: node
     rootDir: assistente-cpz/backend
     buildCommand: npm install
-    startCommand: node index.js
+    startCommand: bash start.sh
     envVars:
       - key: NODE_ENV
         value: production
