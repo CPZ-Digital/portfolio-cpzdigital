@@ -340,7 +340,7 @@ section{padding:6rem 1.5rem;}
   transition:transform .35s,border-color .35s,box-shadow .35s;
   text-decoration:none;color:inherit;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
 }
-.proj-card:hover{transform:translateY(-7px);box-shadow:0 28px 70px rgba(0,0,0,.55);}
+.proj-card:hover{border-color:rgba(0,170,255,.25);box-shadow:0 0 40px rgba(0,170,255,.08);}
 .proj-card.live:hover{border-color:rgba(0,255,170,.3);box-shadow:0 28px 70px rgba(0,0,0,.55),0 0 40px rgba(0,255,170,.05);}
 .proj-card.ready:hover{border-color:rgba(0,170,255,.3);}
 .proj-card.dev:hover{border-color:rgba(245,158,11,.25);}
@@ -620,6 +620,8 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <div class="solucao-card tilt-card g-fade"><span class="solucao-icon">📊</span><div class="solucao-titulo">Financeiro &amp; Relatórios</div><div class="solucao-desc">Controle de receitas, despesas, lucro e exportação em Excel — tudo integrado ao sistema de gestão.</div></div>
       <div class="solucao-card tilt-card g-fade"><span class="solucao-icon">☁️</span><div class="solucao-titulo">Backend &amp; Nuvem</div><div class="solucao-desc">Banco de dados, autenticação, APIs e hospedagem profissional acessível com alta disponibilidade.</div></div>
       <div class="solucao-card tilt-card g-fade"><span class="solucao-icon">📄</span><div class="solucao-titulo">Propostas e PDFs</div><div class="solucao-desc">Geração de propostas comerciais e orçamentos em PDF profissional direto do celular.</div></div>
+      <div class="solucao-card tilt-card g-fade"><span class="solucao-icon">🔐</span><div class="solucao-titulo">Login &amp; Segurança</div><div class="solucao-desc">Autenticação segura, controle de acesso por perfil e login biométrico nos apps mobile.</div></div>
+      <div class="solucao-card tilt-card g-fade"><span class="solucao-icon">🔗</span><div class="solucao-titulo">Integrações &amp; APIs</div><div class="solucao-desc">Conecta seu sistema a Google Sheets, calendários, gateways de pagamento e outras ferramentas que você já usa.</div></div>
     </div>
   </div>
 </section>
@@ -783,7 +785,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <div class="proj-card dev tilt-card g-fade">
         <div class="proj-top">
           <div class="status-badge badge-dev"><span class="dot"></span> Em desenvolvimento</div>
-          <div class="proj-logo-wrap"><img src="logo-declaramais.png" alt="Declara+" class="proj-logo"></div>
+          <div class="proj-logo-wrap"><img src="logo-declaramais.png" alt="Declara+" class="proj-logo" style="transform:scale(.8)"></div>
           <div class="proj-nome">Declara+</div>
           <div class="proj-tagline">SaaS · Gestão de IR para contadores</div>
         </div>
@@ -858,6 +860,8 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <div class="stack-card g-fade"><div class="stack-icon">📄</div><div class="stack-name">pdfmake / ExcelJS</div><div class="stack-desc">PDF e planilhas direto no navegador</div></div>
       <div class="stack-card g-fade"><div class="stack-icon">📅</div><div class="stack-name">Google Calendar</div><div class="stack-desc">Criação automática de eventos e lembretes</div></div>
       <div class="stack-card g-fade"><div class="stack-icon">🔔</div><div class="stack-name">Web Push</div><div class="stack-desc">Notificações nativas mesmo com app fechado</div></div>
+      <div class="stack-card g-fade"><div class="stack-icon">📲</div><div class="stack-name">Expo / RN</div><div class="stack-desc">Apps mobile nativos para iOS e Android</div></div>
+      <div class="stack-card g-fade"><div class="stack-icon">🔑</div><div class="stack-name">NextAuth</div><div class="stack-desc">Autenticação e sessões seguras no Next.js</div></div>
     </div>
   </div>
 </section>
