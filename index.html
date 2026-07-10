@@ -44,6 +44,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:
 .loader-text{font-size:.7rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;}
 
 /* ── CURSOR ── */
+@media(hover:none),(pointer:coarse){
+  .cur-dot{display:none!important;}
+  body{cursor:auto!important;}
+}
 .cur-dot{
   position:fixed;width:6px;height:6px;border-radius:50%;
   background:var(--accent2);pointer-events:none;z-index:9999;
