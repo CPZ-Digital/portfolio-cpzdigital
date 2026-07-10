@@ -363,7 +363,8 @@ section{padding:6rem 1.5rem;}
 .badge-ready .dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
 .badge-dev{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);color:var(--warning);}
 .badge-dev .dot{background:var(--warning);}
-.proj-logo{width:56px;height:56px;object-fit:contain;margin-bottom:.55rem;border-radius:9px;display:block;background:#fff;}
+.proj-logo-wrap{width:56px;height:56px;margin-bottom:.55rem;border-radius:9px;overflow:hidden;background:#fff;display:block;}
+.proj-logo{width:100%;height:100%;object-fit:cover;transform:scale(1.08);display:block;}
 .proj-icon{font-size:2rem;margin-bottom:.55rem;display:block;}
 .proj-nome{font-size:1.05rem;font-weight:800;margin-bottom:.12rem;}
 .proj-tagline{font-size:.72rem;color:var(--accent2);font-weight:600;}
@@ -733,7 +734,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <a class="proj-card live tilt-card g-fade" href="https://propostasmart.cpzdigital.com.br/planos.html" target="_blank" rel="noopener">
         <div class="proj-top">
           <div class="status-badge badge-live"><span class="dot"></span> No ar</div>
-          <img src="logo-propostasmart.png" alt="PropostaSmart" class="proj-logo">
+          <div class="proj-logo-wrap"><img src="logo-propostasmart.png" alt="PropostaSmart" class="proj-logo"></div>
           <div class="proj-nome">PropostaSmart</div>
           <div class="proj-tagline">SaaS · Propostas de segurança eletrônica</div>
         </div>
@@ -752,7 +753,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <a class="proj-card live tilt-card g-fade" href="https://appsorteio.cpzdigital.com.br" target="_blank" rel="noopener">
         <div class="proj-top">
           <div class="status-badge badge-live"><span class="dot"></span> No ar</div>
-          <img src="logo-sorteiaai.png" alt="SorteiaAi" class="proj-logo">
+          <div class="proj-logo-wrap"><img src="logo-sorteiaai.png" alt="SorteiaAi" class="proj-logo"></div>
           <div class="proj-nome">SorteiaAi</div>
           <div class="proj-tagline">PWA · Sorteio de times esportivos</div>
         </div>
@@ -770,7 +771,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
       <div class="proj-card ready tilt-card g-fade">
         <div class="proj-top">
           <div class="status-badge badge-ready"><span class="dot"></span> Disponível</div>
-          <img src="logo-barberos.png" alt="BarberOS" class="proj-logo">
+          <div class="proj-logo-wrap"><img src="logo-barberos.png" alt="BarberOS" class="proj-logo"></div>
           <div class="proj-nome">BarberOS</div>
           <div class="proj-tagline">Sistema · Agendamento para barbearias</div>
         </div>
