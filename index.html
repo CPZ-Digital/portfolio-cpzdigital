@@ -1246,30 +1246,6 @@ function initGSAP(){
 }
 
 /* ─── CARD TILT ─── */
-function initTilt(){
-  document.querySelectorAll('.tilt-card').forEach(card=>{
-    let rect=null, pending=false, lastX=0, lastY=0;
-    card.addEventListener('mouseenter', ()=>{ rect = card.getBoundingClientRect(); card.style.zIndex = 5; });
-    card.addEventListener('mousemove', e=>{
-      if(!rect) rect = card.getBoundingClientRect();
-      lastX = (e.clientX-rect.left)/rect.width - .5;
-      lastY = (e.clientY-rect.top)/rect.height - .5;
-      if(!pending){
-        pending = true;
-        requestAnimationFrame(()=>{
-          card.style.transform = `perspective(800px) rotateY(${lastX*6}deg) rotateX(${-lastY*5}deg) translateY(-6px)`;
-          pending = false;
-        });
-      }
-    });
-    card.addEventListener('mouseleave', ()=>{
-      rect = null;
-      card.style.transform = '';
-      card.style.zIndex = '';
-    });
-  });
-}
-
 /* ─── CHAT ─── */
 function initChat(){
   const BACKEND='https://assistente-cpz.onrender.com';
@@ -1299,7 +1275,6 @@ function startSite(){
   try{ initHeroCanvas(); }catch(e){ console.warn('Hero canvas error',e); }
   try{ if(!isMobile) initFlowCanvas(); }catch(e){ console.warn('Flow canvas error',e); }
   initGSAP();
-  initTilt();
   initChat();
 }
 
