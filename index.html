@@ -286,7 +286,7 @@ section{padding:6rem 1.5rem;}
 .solucao-desc{font-size:.78rem;color:var(--muted);line-height:1.6;}
 
 /* ── TILT CARDS ── */
-.tilt-card{transform-style:preserve-3d;will-change:transform;}
+.tilt-card{transform-style:preserve-3d;will-change:transform;transition:transform .25s cubic-bezier(.22,1,.36,1);}
 .tilt-card .card-inner{transition:transform .1s;}
 
 /* ── ENTREGAS ── */
@@ -1212,13 +1212,22 @@ function initGSAP(){
 /* ─── CARD TILT ─── */
 function initTilt(){
   document.querySelectorAll('.tilt-card').forEach(card=>{
+    let rect=null, pending=false, lastX=0, lastY=0;
+    card.addEventListener('mouseenter', ()=>{ rect = card.getBoundingClientRect(); });
     card.addEventListener('mousemove', e=>{
-      const r = card.getBoundingClientRect();
-      const x = (e.clientX-r.left)/r.width - .5;
-      const y = (e.clientY-r.top)/r.height - .5;
-      card.style.transform = `perspective(800px) rotateY(${x*10}deg) rotateX(${-y*8}deg) translateY(-6px)`;
+      if(!rect) rect = card.getBoundingClientRect();
+      lastX = (e.clientX-rect.left)/rect.width - .5;
+      lastY = (e.clientY-rect.top)/rect.height - .5;
+      if(!pending){
+        pending = true;
+        requestAnimationFrame(()=>{
+          card.style.transform = `perspective(800px) rotateY(${lastX*10}deg) rotateX(${-lastY*8}deg) translateY(-6px)`;
+          pending = false;
+        });
+      }
     });
     card.addEventListener('mouseleave', ()=>{
+      rect = null;
       card.style.transform = '';
     });
   });
