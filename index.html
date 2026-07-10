@@ -993,8 +993,12 @@ function initHeroCanvas(){
   const pArr = pGeo.attributes.position.array;
   const CONN = isMobile?1.8:2.5;
 
+  let heroVisible = true;
+  new IntersectionObserver(entries=>{ heroVisible = entries[0].isIntersecting; }, {threshold:0}).observe(hero);
+
   function tick(){
     requestAnimationFrame(tick);
+    if(!heroVisible || document.hidden) return;
     t += .008;
 
     // Torus knot breathe + rotate
@@ -1017,8 +1021,8 @@ function initHeroCanvas(){
     }
     pGeo.attributes.position.needsUpdate = true;
 
-    // Connections
-    if(!isMobile){
+    // Connections (skip every other frame — expensive O(n^2) scan)
+    if(!isMobile && (Math.round(t*125)%2===0)){
       const pts=[];
       const nodePos = pGeo.attributes.position;
       for(let i=0;i<Math.min(N,60);i++){
@@ -1146,8 +1150,12 @@ function initFlowCanvas(){
   }
   resize(); window.addEventListener('resize', resize);
 
+  let flowVisible = false;
+  new IntersectionObserver(entries=>{ flowVisible = entries[0].isIntersecting; }, {threshold:0}).observe(section);
+
   function tick(){
     requestAnimationFrame(tick);
+    if(!flowVisible || document.hidden) return;
     camAngle += .003;
 
     // Camera slowly orbits
