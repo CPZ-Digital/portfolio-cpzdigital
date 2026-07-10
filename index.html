@@ -333,7 +333,7 @@ section{padding:6rem 1.5rem;}
 
 /* ── PRODUTOS ── */
 #produtos{background:var(--bg2);position:relative;overflow:hidden;}
-.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.25rem;margin-top:3rem;position:relative;z-index:1;}
+.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.25rem 1.25rem;row-gap:2.5rem;margin-top:3rem;position:relative;z-index:1;}
 .proj-card{
   background:rgba(4,12,24,.9);border:1px solid rgba(0,170,255,.08);
   border-radius:18px;overflow:hidden;display:flex;flex-direction:column;
@@ -1249,7 +1249,7 @@ function initGSAP(){
 function initTilt(){
   document.querySelectorAll('.tilt-card').forEach(card=>{
     let rect=null, pending=false, lastX=0, lastY=0;
-    card.addEventListener('mouseenter', ()=>{ rect = card.getBoundingClientRect(); });
+    card.addEventListener('mouseenter', ()=>{ rect = card.getBoundingClientRect(); card.style.zIndex = 5; });
     card.addEventListener('mousemove', e=>{
       if(!rect) rect = card.getBoundingClientRect();
       lastX = (e.clientX-rect.left)/rect.width - .5;
@@ -1257,7 +1257,7 @@ function initTilt(){
       if(!pending){
         pending = true;
         requestAnimationFrame(()=>{
-          card.style.transform = `perspective(800px) rotateY(${lastX*10}deg) rotateX(${-lastY*8}deg) translateY(-6px)`;
+          card.style.transform = `perspective(800px) rotateY(${lastX*6}deg) rotateX(${-lastY*5}deg) translateY(-6px)`;
           pending = false;
         });
       }
@@ -1265,6 +1265,7 @@ function initTilt(){
     card.addEventListener('mouseleave', ()=>{
       rect = null;
       card.style.transform = '';
+      card.style.zIndex = '';
     });
   });
 }
