@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CPZ Digital — Tecnologia sob medida para o seu negócio</title>
 <meta name="description" content="Sistemas exclusivos, apps PWA e automações para PMEs. Rio de Janeiro.">
+<meta property="og:title" content="CPZ Digital — Tecnologia sob medida para o seu negócio">
+<meta property="og:description" content="Sistemas exclusivos, apps PWA e automações para PMEs. Rio de Janeiro.">
+<meta property="og:image" content="https://cpzdigital.com.br/cpz-logo.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cpzdigital.com.br">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/cpz-logo.png">
 <link href="https://fonts.cdnfonts.com/css/ethnocentric" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -92,7 +99,9 @@ nav{
 .mobile-menu.open{display:flex;}
 .mobile-menu a{color:var(--muted2);text-decoration:none;font-size:1rem;font-weight:500;}
 .mobile-menu .nav-cta{color:#000!important;align-self:flex-start;padding:.6rem 1.4rem;font-size:.9rem!important;}
-@media(max-width:760px){
+@media(max-width:900px){
+  /* 760px deixava o iPad em portrait (768px) cair no meio do fogo: nav completa não cabia,
+     logo quebrava em 2 linhas e o CTA virava caixa cortada. 900px cobre tablet também. */
   .nav-links{display:none;}.nav-hamburger{display:flex;}
   nav{padding:1rem 1.25rem;}
 }
@@ -295,7 +304,7 @@ section{padding:6rem 1.5rem;}
 
 /* ── ENTREGAS ── */
 #entregas{background:var(--bg);position:relative;overflow:hidden;}
-.entregas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;margin-top:3rem;position:relative;z-index:1;}
+.entregas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:1.5rem;margin-top:3rem;position:relative;z-index:1;}
 .entrega-card{
   background:rgba(4,12,24,.9);border:1px solid rgba(0,170,255,.08);
   border-radius:18px;overflow:hidden;display:flex;flex-direction:column;
@@ -337,7 +346,7 @@ section{padding:6rem 1.5rem;}
 
 /* ── PRODUTOS ── */
 #produtos{background:var(--bg2);position:relative;overflow:hidden;}
-.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.25rem 1.25rem;row-gap:2.5rem;margin-top:3rem;position:relative;z-index:1;}
+.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr));gap:1.25rem 1.25rem;row-gap:2.5rem;margin-top:3rem;position:relative;z-index:1;}
 .proj-card{
   background:rgba(4,12,24,.9);border:1px solid rgba(0,170,255,.08);
   border-radius:18px;overflow:hidden;display:flex;flex-direction:column;
@@ -750,7 +759,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
           <div class="proj-link">Ver planos e preços →</div>
         </div>
       </a>
-      <a class="proj-card live tilt-card g-fade" href="https://appsorteio.cpzdigital.com.br" target="_blank" rel="noopener">
+      <a class="proj-card live tilt-card g-fade" href="https://cpz-digital.github.io/SorteiaAI-cpz/" target="_blank" rel="noopener">
         <div class="proj-top">
           <div class="status-badge badge-live"><span class="dot"></span> No ar</div>
           <div class="proj-logo-wrap"><img src="logo-sorteiaai.png" alt="SorteiaAi" class="proj-logo"></div>
@@ -918,7 +927,7 @@ footer{background:var(--bg2);border-top:1px solid rgba(0,170,255,.06);padding:2.
 <div id="cpz-chat-box">
   <div id="cpz-chat-header">
     <div class="cpz-avatar">C</div>
-    <div class="cpz-info"><div class="cpz-name">Cris · CPZ Digital</div><div class="cpz-status">Online agora</div></div>
+    <div class="cpz-info"><div class="cpz-name">Cris · CPZ Digital</div><div class="cpz-status">Assistente virtual</div></div>
     <button type="button" id="cpz-chat-close" aria-label="Fechar">✕</button>
   </div>
   <div id="cpz-chat-messages"><div class="cpz-msg bot">Olá! 👋 Sou a Cris da CPZ Digital. Como posso te ajudar?</div></div>
@@ -1288,8 +1297,19 @@ function initChat(){
     const text=input.value.trim();if(!text||waiting)return;
     input.value='';waiting=true;addMsg(text,'user');
     const typing=addMsg('Digitando...','bot typing');
-    try{const res=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,sessionId})});const data=await res.json();typing.remove();addMsg(data.reply||'Desculpe, tente novamente.','bot');}
-    catch{typing.remove();addMsg('Sem conexão no momento.','bot');}
+    // sem isso, se o backend nunca responder (não é erro, só trava), o fetch fica pendurado pra
+    // sempre e o usuário vê "Digitando..." pra sempre — timeout garante um fim, sempre.
+    const controller=new AbortController();
+    const timeoutId=setTimeout(()=>controller.abort(),8000);
+    try{
+      const res=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,sessionId}),signal:controller.signal});
+      const data=await res.json();
+      typing.remove();addMsg(data.reply||'Desculpe, tente novamente.','bot');
+    }catch{
+      typing.remove();addMsg('Não consegui responder agora — me chama por e-mail (contato@cpzdigital.com.br) que a gente responde rapidinho.','bot');
+    }finally{
+      clearTimeout(timeoutId);
+    }
     waiting=false;
   }
   document.getElementById('cpz-chat-send').addEventListener('click',sendMsg);
@@ -1300,7 +1320,16 @@ function initChat(){
 function startSite(){
   try{ initHeroCanvas(); }catch(e){ console.warn('Hero canvas error',e); }
   try{ if(!isMobile) initFlowCanvas(); }catch(e){ console.warn('Flow canvas error',e); }
-  initGSAP();
+  // se o GSAP não carregar (CDN fora do ar, ad-blocker, adblock de terceiro etc.), a página
+  // inteira ficava travada em opacity:0 pra sempre — sem isso, sem GSAP = site "vazio" pro visitante.
+  try{
+    if(typeof gsap==='undefined' || typeof ScrollTrigger==='undefined') throw new Error('GSAP não carregou');
+    initGSAP();
+  }catch(e){
+    console.warn('GSAP indisponível, revelando conteúdo sem animação:', e);
+    document.querySelectorAll('.g-fade,.g-fade-left,.g-fade-right').forEach(el=>{ el.style.opacity='1'; el.style.transform='none'; });
+    document.querySelectorAll('.stat-num[data-target]').forEach(el=>{ el.textContent = el.dataset.target + (el.dataset.suffix||'+'); });
+  }
   initChat();
 }
 
