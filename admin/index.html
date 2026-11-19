@@ -172,7 +172,7 @@ $('outBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};
 $('newBtn').onclick=async()=>{
   const nome=prompt('Nome do funcionário:');if(!nome)return;
   const slug=prompt('Final do link (só letras minúsculas, números e -). Ex: bruno',nome.split(' ')[0].toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''));if(!slug)return;
-  const {data,error}=await sb.from('cards').insert({nome,slug:slug.toLowerCase(),empresa:'CPZ Digital',cargo:'CPZ Digital',pix_city:'RIO DE JANEIRO'}).select().single();
+  const {data,error}=await sb.from('cards').insert({nome,slug:slug.toLowerCase(),empresa:'CPZ Digital',cargo:'CPZ Digital',pix_city:'RIO DE JANEIRO',verificado:true}).select().single();
   if(error)return alert(error.message);
   fill(data);$('backBtn').classList.remove('hide');$('adminTools').classList.remove('hide');
 };
