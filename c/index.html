@@ -45,6 +45,12 @@ input:focus{outline:none;border-color:var(--accent);}
 .btn{margin-top:.8rem;width:100%;padding:.8rem;border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#020408;font-weight:800;font-size:.9rem;cursor:pointer;font-family:var(--font);}
 .mono{font-family:Consolas,monospace;font-size:.72rem;color:var(--muted);word-break:break-all;margin-top:.7rem;}
 .msg{font-size:.82rem;margin-top:.6rem;color:var(--accent2);}
+.ov{display:none;position:fixed;inset:0;z-index:9;background:rgba(2,4,8,.78);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1.25rem;animation:in .2s ease both;}
+.pop{position:relative;width:100%;max-width:340px;text-align:center;padding:2.2rem 1.5rem 1.6rem;border-radius:22px;border:1px solid var(--line);
+  background:radial-gradient(ellipse 120% 70% at 50% 0%,color-mix(in srgb,var(--accent) 24%,transparent),transparent 70%),#08111d;box-shadow:0 24px 60px -12px rgba(0,0,0,.7),0 0 40px -10px color-mix(in srgb,var(--accent) 50%,transparent);}
+.pop .qr{padding:12px;border-radius:16px;}
+.pn{font-weight:800;font-size:1.1rem;margin-top:1rem;}
+.x{position:absolute;top:.6rem;right:.7rem;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font-size:1.3rem;line-height:1;cursor:pointer;}
 footer{text-align:center;padding:2rem 1.5rem 0;font-size:.74rem;color:var(--muted);}
 footer a{color:var(--accent2);text-decoration:none;font-weight:700;}
 .loading{padding:5rem 1.5rem;text-align:center;color:var(--muted);}
@@ -145,14 +151,19 @@ async function render(){
       <input id="xEmail" type="email" placeholder="E-mail" maxlength="120"><input id="xTel" type="tel" placeholder="Celular com DDD" maxlength="30">
       <button class="btn" type="submit">Enviar meu contato</button><div class="msg" id="xMsg"></div></form>
     </div></details>
-    <div id="qrOv" style="display:none;position:fixed;inset:0;background:#fff;z-index:9;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;color:#020408"><div id="qrBig"></div><p id="qrNome" style="font-weight:800;font-size:1.15rem;margin-top:1.2rem"></p><p style="color:#555;font-size:.85rem;margin-top:.3rem">Aponte a câmera para abrir o cartão<br>Toque para fechar</p></div>
+    <div id="qrOv" class="ov"><div class="pop" onclick="event.stopPropagation()">
+      <button class="x" id="qrX" type="button" aria-label="Fechar">&times;</button>
+      <div class="qr" id="qrBig"></div>
+      <p class="pn" id="qrNome"></p>
+      <p class="cap">Aponte a câmera para abrir o cartão</p>
+    </div></div>
     <footer>Desenvolvido por <a href="https://cpzdigital.com.br" target="_blank" rel="noopener">CPZ Digital</a></footer>
   </div>`;
 
   const qr=(el,text,size=140)=>new QRCode($(el),{text,width:size,height:size,colorDark:'#020408',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});
   $('qrNome').textContent=d.nome;
-  $('qrBtn').onclick=()=>{const sz=Math.min(innerWidth-48,360);$('qrBig').innerHTML='';qr('qrBig',pageUrl(),sz);$('qrOv').style.display='flex';};
-  $('qrOv').onclick=()=>$('qrOv').style.display='none';
+  $('qrBtn').onclick=()=>{const sz=Math.min(innerWidth-120,260);$('qrBig').innerHTML='';qr('qrBig',pageUrl(),sz);$('qrOv').style.display='flex';};
+  const closeQr=()=>$('qrOv').style.display='none';$('qrOv').onclick=closeQr;$('qrX').onclick=closeQr;
   $('vcfBtn').onclick=async e=>{
     e.preventDefault();
     const txt=vcard(d,true),fname=(noAcc(d.nome).trim().replace(/ +/g,'_')||'contato')+'.vcf';
