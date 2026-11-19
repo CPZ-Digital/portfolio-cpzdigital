@@ -67,6 +67,7 @@ const IC={
  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
  link:'<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1"/>',
  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+ qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"/>',
  insta:'<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>'
 };
 function row(tag,attrs,ic,t,s,cls=''){return `<${tag} class="row ${cls}" ${attrs}><span class="ico"><svg viewBox="0 0 24 24">${IC[ic]||IC.link}</svg></span><span class="txt"><span class="t">${esc(t)}</span>${s?`<span class="s">${esc(s)}</span>`:''}</span></${tag}>`;}
@@ -114,7 +115,7 @@ async function render(){
   if(site)rows+=row('a',A(site),'link','Site',site.replace(/^https?:\/\//,''));
   if(ig)rows+=row('a',A(ig),'insta','Instagram',ig.replace(/^https?:\/\/(www\.)?/,''));
   (d.links||[]).forEach(l=>{const u=safeUrl(l.url);if(u)rows+=row('a',A(u),'link',l.label||u,u.replace(/^https?:\/\//,''));});
-  rows+=row('button','id="shareBtn" type="button"','share','Compartilhar este cartão','Enviar para alguém');
+  rows+=row('button','id="qrBtn" type="button"','qr','Mostrar QR Code','Para a pessoa escanear')+row('button','id="shareBtn" type="button"','share','Compartilhar este cartão','Enviar para alguém');
 
   $('page').innerHTML=`
   <div class="hero">
@@ -126,10 +127,6 @@ async function render(){
   </div>
   <div class="body">
     ${rows}
-    <details><summary>QR Code</summary><div class="in"><div class="qrs">
-      <div><div class="qr" id="qrOn"></div><div class="cap">Online<br>abre este cartão</div></div>
-      <div><div class="qr" id="qrOff"></div><div class="cap">Offline<br>salva o contato</div></div>
-    </div></div></details>
     ${d.pix_key?`<details><summary>Pix</summary><div class="in">
       <div class="qr" id="pixQr" style="margin-top:.4rem"></div>
       <div class="cap">Escaneie para pagar · valor em aberto<br>Chave: ${esc(fmtKey(d.pix_key))}</div>
@@ -148,11 +145,14 @@ async function render(){
       <input id="xEmail" type="email" placeholder="E-mail" maxlength="120"><input id="xTel" type="tel" placeholder="Celular com DDD" maxlength="30">
       <button class="btn" type="submit">Enviar meu contato</button><div class="msg" id="xMsg"></div></form>
     </div></details>
+    <div id="qrOv" style="display:none;position:fixed;inset:0;background:#fff;z-index:9;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;color:#020408"><div id="qrBig"></div><p id="qrNome" style="font-weight:800;font-size:1.15rem;margin-top:1.2rem"></p><p style="color:#555;font-size:.85rem;margin-top:.3rem">Aponte a câmera para abrir o cartão<br>Toque para fechar</p></div>
     <footer>Desenvolvido por <a href="https://cpzdigital.com.br" target="_blank" rel="noopener">CPZ Digital</a></footer>
   </div>`;
 
   const qr=(el,text,size=140)=>new QRCode($(el),{text,width:size,height:size,colorDark:'#020408',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});
-  try{qr('qrOn',pageUrl());qr('qrOff',vcard(d,false,true));}catch(err){console.error('QR',err);}
+  $('qrNome').textContent=d.nome;
+  $('qrBtn').onclick=()=>{const sz=Math.min(innerWidth-48,360);$('qrBig').innerHTML='';qr('qrBig',pageUrl(),sz);$('qrOv').style.display='flex';};
+  $('qrOv').onclick=()=>$('qrOv').style.display='none';
   $('vcfBtn').onclick=async e=>{
     e.preventDefault();
     const txt=vcard(d,true),fname=(noAcc(d.nome).trim().replace(/ +/g,'_')||'contato')+'.vcf';
