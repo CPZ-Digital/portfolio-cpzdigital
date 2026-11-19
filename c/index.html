@@ -81,14 +81,14 @@ function pixPayload(key,name,city,amount){
   return p+crc16(p);
 }
 const vEsc=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
-function vcard(d,withPhoto){
+function vcard(d,withPhoto,compact){
   const parts=d.nome.trim().split(/\s+/),last=parts.length>1?parts.pop():'';
-  const L=['BEGIN:VCARD','VERSION:3.0',`N:${vEsc(last)};${vEsc(parts.join(' '))};;;`,`FN:${vEsc(d.nome)}`];
-  if(d.empresa)L.push('ORG:'+vEsc(d.empresa));if(d.cargo)L.push('TITLE:'+vEsc(d.cargo));
-  if(d.whatsapp)L.push('TEL;TYPE=CELL:+'+digits(d.whatsapp));if(d.telefone)L.push('TEL;TYPE=WORK:'+vEsc(d.telefone));
+  const L=['BEGIN:VCARD','VERSION:3.0'];if(!compact)L.push(`N:${vEsc(last)};${vEsc(parts.join(' '))};;;`);L.push(`FN:${vEsc(d.nome)}`);
+  if(d.empresa)L.push('ORG:'+vEsc(d.empresa));if(d.cargo&&!compact)L.push('TITLE:'+vEsc(d.cargo));
+  if(d.whatsapp)L.push('TEL;TYPE=CELL:+'+digits(d.whatsapp));if(d.telefone&&!compact)L.push('TEL;TYPE=WORK:'+vEsc(d.telefone));
   if(d.email)L.push('EMAIL:'+vEsc(d.email));
-  const site=safeUrl(d.site);if(site)L.push('URL:'+site);
-  L.push('URL:'+pageUrl());
+  const site=safeUrl(d.site);if(site&&!compact)L.push('URL:'+site);
+  if(!compact)L.push('URL:'+pageUrl());
   const m=/^data:image\/jpeg;base64,(.+)$/.exec(d.avatar||'');
   if(withPhoto&&m)L.push('PHOTO;ENCODING=b;TYPE=JPEG:'+m[1]);
   L.push('END:VCARD');
@@ -148,8 +148,7 @@ async function render(){
   </div>`;
 
   const qr=(el,text,size=140)=>new QRCode($(el),{text,width:size,height:size,colorDark:'#020408',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});
-  qr('qrOn',pageUrl());
-  qr('qrOff',vcard(d,false));
+  try{qr('qrOn',pageUrl());qr('qrOff',vcard(d,false,true));}catch(err){console.error('QR',err);}
   $('vcfBtn').onclick=async e=>{
     e.preventDefault();
     const txt=vcard(d,true),fname=(noAcc(d.nome).trim().replace(/ +/g,'_')||'contato')+'.vcf';
