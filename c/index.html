@@ -130,7 +130,7 @@ async function render(){
       <div><div class="qr" id="qrOff"></div><div class="cap">Offline<br>salva o contato</div></div>
     </div></div></details>
     ${d.pix_key?`<details><summary>Pix</summary><div class="in">
-      <input id="pixVal" inputmode="decimal" placeholder="Valor (deixe vazio para valor em aberto)">
+      <input id="pixVal" inputmode="decimal" placeholder="Valor (opcional)">
       <button class="btn" id="pixGo" type="button">Gerar Pix</button>
       <div id="pixOut" style="display:none"><div class="qr" id="pixQr" style="margin-top:1rem"></div><div class="mono" id="pixCode"></div><button class="btn" id="pixCopy" type="button">Copiar código Pix</button></div>
     </div></details>`:''}
