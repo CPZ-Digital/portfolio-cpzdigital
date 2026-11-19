@@ -84,6 +84,7 @@ a.back{color:var(--accent2);font-size:.85rem;text-decoration:none;font-weight:70
 
       <div id="adminTools" class="hide">
         <h2>Administração</h2>
+        <label id="verWrap" style="display:flex;gap:.6rem;align-items:center;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--text);margin-top:0"><input type="checkbox" id="verificado" style="width:auto"> Selo "Verificado" no cartão</label>
         <label>Slug (final do link)</label><input id="slug" pattern="[a-z0-9\-]{2,40}">
         <button type="button" class="sec" id="copyPub">Copiar link do cartão (NFC/QR)</button>
         <button type="button" class="sec" id="copyEdit">Copiar link de edição do funcionário</button>
@@ -127,8 +128,8 @@ function fill(d){
   cur=d;FIELDS.forEach(f=>$(f).value=d[f]||(f==='accent'?'#00aaff':''));
   $('links').value=(d.links||[]).map(l=>`${l.label} | ${l.url}`).join('\n');
   img.avatar=d.avatar||'';img.logo=d.logo||'';setPrev('avatarP',img.avatar);setPrev('logoP',img.logo);
-  $('viewBtn').href=base+'c/?s='+d.slug;
-  if(isOwner){$('slug').value=d.slug;$('toggle').textContent=d.ativo?'Desativar cartão':'Reativar cartão';}
+  $('viewBtn').href=base+'c/'+d.slug;
+  if(isOwner){$('verWrap').classList.toggle('hide',!('verificado' in d));$('verificado').checked=!!d.verificado;$('slug').value=d.slug;$('toggle').textContent=d.ativo?'Desativar cartão':'Reativar cartão';}
   show('edit');loadContacts();
 }
 function collect(){
@@ -142,12 +143,12 @@ $('form').onsubmit=async e=>{
   const o=collect();let error;
   if(isOwner){
     const slug=$('slug').value.trim().toLowerCase();
-    ({error}=await sb.from('cards').update({...o,slug,updated_at:new Date().toISOString()}).eq('id',cur.id));
+    ({error}=await sb.from('cards').update({...o,slug,...('verificado' in cur?{verificado:$('verificado').checked}:{}),updated_at:new Date().toISOString()}).eq('id',cur.id));
     if(!error)cur.slug=slug;
   }else ({error}=await sb.rpc('save_card_edit',{p_token:TOKEN,p:o}));
   $('saveBtn').disabled=false;
   if(error)return say('sMsg',error.message,'err');
-  $('viewBtn').href=base+'c/?s='+cur.slug;say('sMsg','Salvo! O cartão já está atualizado.','ok');
+  $('viewBtn').href=base+'c/'+cur.slug;say('sMsg','Salvo! O cartão já está atualizado.','ok');
 };
 
 async function loadContacts(){
@@ -176,7 +177,7 @@ $('newBtn').onclick=async()=>{
   fill(data);$('backBtn').classList.remove('hide');$('adminTools').classList.remove('hide');
 };
 const copy=(btn,t)=>{const l=btn.textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent=l,1500);});};
-$('copyPub').onclick=e=>copy(e.target,base+'c/?s='+cur.slug);
+$('copyPub').onclick=e=>copy(e.target,base+'c/'+cur.slug);
 $('copyEdit').onclick=async e=>{const {data}=await sb.from('cards').select('edit_token').eq('id',cur.id).single();copy(e.target,base+'admin/?t='+data.edit_token);};
 $('regen').onclick=async()=>{if(!confirm('O link de edição atual vai parar de funcionar. Continuar?'))return;
   const t=crypto.randomUUID().replace(/-/g,'')+crypto.randomUUID().replace(/-/g,'');
