@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Editar cartão — CPZ Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#020408;--accent:#00aaff;--accent2:#00e5ff;--text:#eef5fc;--muted:#7a94ac;--line:rgba(255,255,255,.1);--field:#0a1420;--font:'Inter',system-ui,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;justify-content:center;padding:2rem 1.25rem 4rem;}
+.wrap{width:100%;max-width:480px;}
+h1{font-size:1.25rem;font-weight:800;margin-bottom:1.4rem;}
+h2{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:1.8rem 0 .2rem;}
+label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .35rem;}
+input,textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:.7rem .85rem;color:var(--text);font:inherit;font-size:.92rem;}
+input[type=color]{padding:.2rem;height:42px;}input[type=file]{padding:.55rem;font-size:.8rem;}
+textarea{resize:vertical;min-height:80px;}input:focus,textarea:focus{outline:none;border-color:var(--accent);}
+button{margin-top:1.2rem;width:100%;padding:.85rem;border:0;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#020408;font-weight:800;font-size:.93rem;cursor:pointer;font-family:var(--font);}
+button.sec{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:600;margin-top:.6rem;}
+button.danger{background:transparent;border:1px solid #6b2a2a;color:#ff8a8a;font-weight:600;margin-top:.6rem;}
+button:disabled{opacity:.5;}
+.msg{margin-top:.9rem;font-size:.85rem;text-align:center;}.ok{color:var(--accent2);}.err{color:#ff6b6b;}
+.hint{font-size:.74rem;color:var(--muted);margin-top:.3rem;}
+.card{display:flex;align-items:center;gap:.8rem;padding:.8rem;border:1px solid var(--line);border-radius:12px;margin-top:.6rem;cursor:pointer;}
+.card img,.card .ph{width:42px;height:42px;border-radius:50%;object-fit:cover;background:var(--field);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent2);}
+.card b{display:block;font-size:.92rem;}.card span{font-size:.76rem;color:var(--muted);}
+.card.off{opacity:.45;}
+.pv{max-width:90px;max-height:90px;margin-top:.5rem;border-radius:10px;display:block;}
+.ct{padding:.7rem 0;border-bottom:1px solid var(--line);font-size:.85rem;}.ct small{color:var(--muted);display:block;}
+.ct a{color:var(--accent2);}
+.hide{display:none!important;}
+a.back{color:var(--accent2);font-size:.85rem;text-decoration:none;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Editar cartão · CPZ Digital</h1>
+
+  <div id="login" class="hide">
+    <label>E-mail</label><input type="email" id="lEmail" autocomplete="username">
+    <label>Senha</label><input type="password" id="lPass" autocomplete="current-password">
+    <button id="lBtn">Entrar</button><div class="msg" id="lMsg"></div>
+  </div>
+
+  <div id="list" class="hide">
+    <button id="newBtn" style="margin-top:0">+ Novo cartão (funcionário)</button>
+    <div id="cards"></div>
+    <button class="sec" id="outBtn">Sair</button>
+  </div>
+
+  <div id="edit" class="hide">
+    <a class="back hide" id="backBtn">← Todos os cartões</a>
+    <form id="form">
+      <h2>Quem é</h2>
+      <label>Nome</label><input id="nome" required maxlength="100">
+      <label>Cargo</label><input id="cargo" maxlength="100" placeholder="Fundador · CPZ Digital">
+      <label>Empresa</label><input id="empresa" maxlength="100">
+      <label>Bio (aparece abaixo do nome)</label><textarea id="bio" maxlength="600"></textarea>
+      <label>Foto</label><input type="file" id="avatarF" accept="image/*"><img class="pv hide" id="avatarP" style="border-radius:50%">
+      <label>Logo da empresa</label><input type="file" id="logoF" accept="image/*"><img class="pv hide" id="logoP">
+      <label>Cor do cartão</label><input type="color" id="accent">
+
+      <h2>Contato</h2>
+      <label>WhatsApp (com DDD, ex: 21967455648)</label><input id="whatsapp" inputmode="tel">
+      <label>Telefone fixo (opcional)</label><input id="telefone">
+      <label>E-mail</label><input id="email" type="email">
+      <label>Site</label><input id="site" placeholder="https://cpzdigital.com.br">
+      <label>Instagram (@usuario ou link)</label><input id="instagram">
+      <label>Outros links (um por linha: Nome | https://...)</label><textarea id="links" spellcheck="false" placeholder="LinkedIn | https://linkedin.com/in/fulano"></textarea>
+
+      <h2>Pix</h2>
+      <label>Chave Pix (CNPJ, e-mail, telefone ou aleatória)</label><input id="pix_key">
+      <label>Cidade do Pix</label><input id="pix_city" maxlength="15">
+
+      <h2>Wi-Fi da empresa (opcional)</h2>
+      <label>Nome da rede</label><input id="wifi_ssid"><label>Senha</label><input id="wifi_pass">
+
+      <button type="submit" id="saveBtn">Salvar alterações</button>
+      <a class="back" id="viewBtn" target="_blank" rel="noopener" style="display:block;margin-top:1rem;text-align:center">Ver cartão público →</a>
+      <div class="msg" id="sMsg"></div>
+
+      <div id="adminTools" class="hide">
+        <h2>Administração</h2>
+        <label>Slug (final do link)</label><input id="slug" pattern="[a-z0-9\-]{2,40}">
+        <button type="button" class="sec" id="copyPub">Copiar link do cartão (NFC/QR)</button>
+        <button type="button" class="sec" id="copyEdit">Copiar link de edição do funcionário</button>
+        <div class="hint">Quem tiver o link de edição altera este cartão. Mande só pro dono dele.</div>
+        <button type="button" class="sec" id="regen">Gerar novo link de edição (invalida o antigo)</button>
+        <button type="button" class="sec" id="toggle"></button>
+        <button type="button" class="danger" id="del">Excluir cartão</button>
+      </div>
+    </form>
+    <h2>Contatos recebidos</h2><div id="contacts"><div class="hint">Nenhum ainda.</div></div>
+  </div>
+</div>
+
+<script>
+const sb=window.supabase.createClient('https://wooepdcczasmxpzlofqt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2VwZGNjemFzbXhwemxvZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzA0NTMsImV4cCI6MjA5Nzc0NjQ1M30.JY1nR9sBS7ejKVbvsMWCYg37r1fKoyKXE3LZyQqbkYA');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const base=location.origin+location.pathname.replace(/admin\/?(index\.html)?$/,'');
+const TOKEN=new URLSearchParams(location.search).get('t');
+const FIELDS=['nome','cargo','empresa','bio','whatsapp','telefone','email','site','instagram','pix_key','pix_city','wifi_ssid','wifi_pass','accent'];
+let cur=null,isOwner=false,img={avatar:'',logo:''};
+const show=id=>['login','list','edit'].forEach(x=>$(x).classList.toggle('hide',x!==id));
+const say=(id,t,cls)=>{$(id).textContent=t;$(id).className='msg '+(cls||'');};
+
+// foto -> data URL pequena (sem precisar de Storage)
+function shrink(file,max,mime,crop){return new Promise((res,rej)=>{
+  const im=new Image();im.onload=()=>{
+    const c=document.createElement('canvas');let w=im.width,h=im.height,sx=0,sy=0;
+    if(crop){const s=Math.min(w,h);sx=(w-s)/2;sy=(h-s)/2;w=h=s;}
+    const k=Math.min(1,max/Math.max(w,h));c.width=Math.round(w*k);c.height=Math.round(h*k);
+    const x=c.getContext('2d');if(mime==='image/jpeg'){x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);}
+    x.drawImage(im,sx,sy,w,h,0,0,c.width,c.height);res(c.toDataURL(mime,.85));};
+  im.onerror=rej;im.src=URL.createObjectURL(file);});}
+function bindImg(inp,prev,key,max,mime,crop){
+  $(inp).onchange=async e=>{const f=e.target.files[0];if(!f)return;img[key]=await shrink(f,max,mime,crop);setPrev(prev,img[key]);};}
+const setPrev=(id,src)=>{$(id).src=src||'';$(id).classList.toggle('hide',!src);};
+bindImg('avatarF','avatarP','avatar',400,'image/jpeg',true);
+bindImg('logoF','logoP','logo',400,'image/webp',false);
+
+function fill(d){
+  cur=d;FIELDS.forEach(f=>$(f).value=d[f]||(f==='accent'?'#00aaff':''));
+  $('links').value=(d.links||[]).map(l=>`${l.label} | ${l.url}`).join('\n');
+  img.avatar=d.avatar||'';img.logo=d.logo||'';setPrev('avatarP',img.avatar);setPrev('logoP',img.logo);
+  $('viewBtn').href=base+'c/?s='+d.slug;
+  if(isOwner){$('slug').value=d.slug;$('toggle').textContent=d.ativo?'Desativar cartão':'Reativar cartão';}
+  show('edit');loadContacts();
+}
+function collect(){
+  const o={};FIELDS.forEach(f=>o[f]=$(f).value.trim());
+  o.whatsapp=o.whatsapp.replace(/\D/g,'');if(o.whatsapp&&o.whatsapp.length<=11)o.whatsapp='55'+o.whatsapp;
+  o.links=$('links').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?{label:'',url:l}:{label:l.slice(0,i).trim(),url:l.slice(i+1).trim()};});
+  o.avatar=img.avatar;o.logo=img.logo;return o;
+}
+$('form').onsubmit=async e=>{
+  e.preventDefault();$('saveBtn').disabled=true;say('sMsg','Salvando…');
+  const o=collect();let error;
+  if(isOwner){
+    const slug=$('slug').value.trim().toLowerCase();
+    ({error}=await sb.from('cards').update({...o,slug,updated_at:new Date().toISOString()}).eq('id',cur.id));
+    if(!error)cur.slug=slug;
+  }else ({error}=await sb.rpc('save_card_edit',{p_token:TOKEN,p:o}));
+  $('saveBtn').disabled=false;
+  if(error)return say('sMsg',error.message,'err');
+  $('viewBtn').href=base+'c/?s='+cur.slug;say('sMsg','Salvo! O cartão já está atualizado.','ok');
+};
+
+async function loadContacts(){
+  let data;
+  if(isOwner)({data}=await sb.from('contatos').select('*').eq('card_id',cur.id).order('created_at',{ascending:false}));
+  else ({data}=await sb.rpc('get_contacts_edit',{p_token:TOKEN}));
+  $('contacts').innerHTML=(data&&data.length)?data.map(k=>{const t=(k.telefone||'').replace(/\D/g,'');
+    return `<div class="ct"><b>${esc(k.nome)}</b><small>${esc(k.email)} ${esc(k.telefone)} · ${new Date(k.created_at).toLocaleDateString('pt-BR')}</small>${t?`<a href="https://wa.me/${t.length<=11?'55'+t:t}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;}).join(''):'<div class="hint">Nenhum ainda.</div>';
+}
+
+// ---- dono
+async function listCards(){
+  const {data}=await sb.from('cards').select('id,slug,nome,cargo,avatar,ativo').order('created_at',{ascending:true});
+  $('cards').innerHTML=(data||[]).map(c=>`<div class="card ${c.ativo?'':'off'}" data-id="${c.id}">${c.avatar?`<img src="${esc(c.avatar)}">`:`<div class="ph">${esc(c.nome[0])}</div>`}<div><b>${esc(c.nome)}</b><span>${esc(c.cargo||'')} · /${esc(c.slug)}${c.ativo?'':' · desativado'}</span></div></div>`).join('');
+  document.querySelectorAll('.card').forEach(el=>el.onclick=async()=>{
+    const {data:d}=await sb.from('cards').select('*').eq('id',el.dataset.id).single();fill(d);$('backBtn').classList.remove('hide');$('adminTools').classList.remove('hide');});
+  show('list');
+}
+$('backBtn').onclick=listCards;
+$('outBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};
+$('newBtn').onclick=async()=>{
+  const nome=prompt('Nome do funcionário:');if(!nome)return;
+  const slug=prompt('Final do link (só letras minúsculas, números e -). Ex: bruno',nome.split(' ')[0].toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''));if(!slug)return;
+  const {data,error}=await sb.from('cards').insert({nome,slug:slug.toLowerCase(),empresa:'CPZ Digital',cargo:'CPZ Digital',pix_city:'RIO DE JANEIRO'}).select().single();
+  if(error)return alert(error.message);
+  fill(data);$('backBtn').classList.remove('hide');$('adminTools').classList.remove('hide');
+};
+const copy=(btn,t)=>{const l=btn.textContent;navigator.clipboard.writeText(t).then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent=l,1500);});};
+$('copyPub').onclick=e=>copy(e.target,base+'c/?s='+cur.slug);
+$('copyEdit').onclick=async e=>{const {data}=await sb.from('cards').select('edit_token').eq('id',cur.id).single();copy(e.target,base+'admin/?t='+data.edit_token);};
+$('regen').onclick=async()=>{if(!confirm('O link de edição atual vai parar de funcionar. Continuar?'))return;
+  const t=crypto.randomUUID().replace(/-/g,'')+crypto.randomUUID().replace(/-/g,'');
+  const {error}=await sb.from('cards').update({edit_token:t}).eq('id',cur.id);alert(error?error.message:'Novo link gerado. Use "Copiar link de edição".');};
+$('toggle').onclick=async()=>{const {error}=await sb.from('cards').update({ativo:!cur.ativo}).eq('id',cur.id);if(error)return alert(error.message);cur.ativo=!cur.ativo;$('toggle').textContent=cur.ativo?'Desativar cartão':'Reativar cartão';};
+$('del').onclick=async()=>{if(!confirm('Excluir "'+cur.nome+'" e os contatos recebidos? Não tem volta.'))return;
+  const {error}=await sb.from('cards').delete().eq('id',cur.id);if(error)return alert(error.message);listCards();};
+
+$('lBtn').onclick=async()=>{
+  say('lMsg','Entrando…');
+  const {error}=await sb.auth.signInWithPassword({email:$('lEmail').value.trim(),password:$('lPass').value});
+  if(error)return say('lMsg',error.message,'err');boot();
+};
+
+async function boot(){
+  if(TOKEN){ // funcionário
+    const {data,error}=await sb.rpc('get_card_edit',{p_token:TOKEN});
+    if(error||!data){$('title').textContent='Link inválido ou desativado.';return;}
+    $('title').textContent='Seu cartão digital';fill({...data,slug:data.slug});return;
+  }
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)return show('login');
+  const {data:a}=await sb.rpc('is_admin');
+  if(!a){await sb.auth.signOut();show('login');return say('lMsg','Este login não é de administrador.','err');}
+  isOwner=true;listCards();
+}
+boot();
+</script>
+</body>
+</html>
