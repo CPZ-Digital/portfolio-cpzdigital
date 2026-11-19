@@ -118,7 +118,7 @@ async function render(){
   let rows=row('a','id="vcfBtn" href="#"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
   const tel=d.telefone||wa;
   if(tel)rows+=row('a',`href="tel:${/^\+?[\d\s()-]+$/.test(tel)?esc(tel.replace(/[^\d+]/g,'')):'+'+wa}"`,'phone','Ligar',wa&&!d.telefone?'+'+wa:tel);
-  if(wa)rows+=row('a',A('https://wa.me/'+wa),'wa','WhatsApp','Chamar agora');
+  if(wa)rows+=row('a',A('https://wa.me/'+wa+(d.wa_msg?'?text='+encodeURIComponent(d.wa_msg):'')),'wa','WhatsApp','Chamar agora');
   if(d.email)rows+=row('a',`href="mailto:${esc(d.email)}"`,'mail','E-mail',d.email);
   if(site)rows+=row('a',A(site),'link','Site',site.replace(/^https?:\/\//,''));
   if(ig)rows+=row('a',A(ig),'insta','Instagram',ig.replace(/^https?:\/\/(www\.)?/,''));
