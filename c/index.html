@@ -94,6 +94,7 @@ function vcard(d,withPhoto,compact){
   L.push('END:VCARD');
   return L.join('\r\n').replace(/(.{75})(?=.)/g,'$1\r\n ').replace(/\r\n \r\n/g,'\r\n');
 }
+const fmtKey=k=>/^\d{14}$/.test(k)?k.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5'):/^\d{11}$/.test(k)?k.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4'):k;
 const pageUrl=()=>location.origin+location.pathname+'?s='+SLUG;
 
 async function render(){
@@ -130,9 +131,12 @@ async function render(){
       <div><div class="qr" id="qrOff"></div><div class="cap">Offline<br>salva o contato</div></div>
     </div></div></details>
     ${d.pix_key?`<details><summary>Pix</summary><div class="in">
-      <input id="pixVal" inputmode="decimal" placeholder="Valor (opcional)">
-      <button class="btn" id="pixGo" type="button">Gerar Pix</button>
-      <div id="pixOut" style="display:none"><div class="qr" id="pixQr" style="margin-top:1rem"></div><div class="mono" id="pixCode"></div><button class="btn" id="pixCopy" type="button">Copiar código Pix</button></div>
+      <div class="qr" id="pixQr" style="margin-top:.4rem"></div>
+      <div class="cap">Escaneie para pagar · valor em aberto<br>Chave: ${esc(fmtKey(d.pix_key))}</div>
+      <div class="mono" id="pixCode"></div>
+      <button class="btn" id="pixCopy" type="button">Copiar código Pix</button>
+      <input id="pixVal" inputmode="decimal" placeholder="Quer cobrar um valor? Digite aqui" style="margin-top:1.2rem">
+      <button class="btn" id="pixGo" type="button" style="background:transparent;border:1px solid var(--line);color:var(--accent2)">Gerar com este valor</button>
     </div></details>`:''}
     ${d.wifi_ssid?`<details><summary>Wi-Fi</summary><div class="in">
       <div class="qr" id="wifiQr" style="margin-top:.4rem"></div><div class="cap">Aponte a câmera para conectar</div>
@@ -165,11 +169,10 @@ async function render(){
   const copy=(btn,txt,label)=>{navigator.clipboard.writeText(txt).then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent=label,1500);});};
   if(d.pix_key){
     let code='';
-    $('pixGo').onclick=()=>{
-      const v=parseFloat(($('pixVal').value||'0').replace(/\./g,'').replace(',','.'))||0;
-      code=pixPayload(d.pix_key,d.nome,d.pix_city,v);
-      $('pixQr').innerHTML='';qr('pixQr',code,180);$('pixCode').textContent=code;$('pixOut').style.display='block';
-    };
+    const gen=v=>{code=pixPayload(d.pix_key,d.nome,d.pix_city,v);$('pixQr').innerHTML='';qr('pixQr',code,180);$('pixCode').textContent=code;
+      document.querySelector('#pixQr+.cap').firstChild.textContent=v>0?'Valor: R$ '+v.toFixed(2).replace('.',',')+' · escaneie para pagar':'Escaneie para pagar · valor em aberto';};
+    gen(0);
+    $('pixGo').onclick=()=>gen(parseFloat(($('pixVal').value||'0').replace(/\./g,'').replace(',','.'))||0);
     $('pixCopy').onclick=e=>copy(e.target,code,'Copiar código Pix');
   }
   if(d.wifi_ssid){
