@@ -105,7 +105,7 @@ async function render(){
   const img=u=>/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u||'')?u:'';
   const wa=digits(d.whatsapp),site=safeUrl(d.site);
   const ig=d.instagram?safeUrl(/^https?:|\./.test(d.instagram)?d.instagram:'instagram.com/'+d.instagram.replace(/^@/,'')):'';
-  let rows=row('a','id="vcfBtn" download="'+esc(d.nome)+'.vcf"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
+  let rows=row('a','id="vcfBtn" href="#"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
   const tel=d.telefone||wa;
   if(tel)rows+=row('a',`href="tel:${/^\+?[\d\s()-]+$/.test(tel)?esc(tel.replace(/[^\d+]/g,'')):'+'+wa}"`,'phone','Ligar',wa&&!d.telefone?'+'+wa:tel);
   if(wa)rows+=row('a',A('https://wa.me/'+wa),'wa','WhatsApp','Chamar agora');
@@ -150,7 +150,18 @@ async function render(){
   const qr=(el,text,size=140)=>new QRCode($(el),{text,width:size,height:size,colorDark:'#020408',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});
   qr('qrOn',pageUrl());
   qr('qrOff',vcard(d,false));
-  $('vcfBtn').href=URL.createObjectURL(new Blob([vcard(d,true)],{type:'text/vcard'}));
+  $('vcfBtn').onclick=async e=>{
+    e.preventDefault();
+    const txt=vcard(d,true),fname=(noAcc(d.nome).trim().replace(/ +/g,'_')||'contato')+'.vcf';
+    const file=new File([txt],fname,{type:'text/vcard'});
+    // celular: folha de compartilhar com o arquivo -> "Contatos" importa direto
+    if(matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:d.nome});return;}catch(err){if(err.name==='AbortError')return;}
+    }
+    // iPhone sem share de arquivo: data URI abre a tela "Adicionar contato"
+    if(/iP(hone|ad|od)/.test(navigator.userAgent)){location.href='data:text/vcard;charset=utf-8,'+encodeURIComponent(txt);return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=fname;document.body.appendChild(a);a.click();a.remove();
+  };
   $('shareBtn').onclick=()=>navigator.share?navigator.share({title:d.nome,text:d.nome+(d.cargo?' · '+d.cargo:''),url:pageUrl()}).catch(()=>{}):window.open('https://wa.me/?text='+encodeURIComponent(d.nome+' '+pageUrl()),'_blank');
   const copy=(btn,txt,label)=>{navigator.clipboard.writeText(txt).then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent=label,1500);});};
   if(d.pix_key){
