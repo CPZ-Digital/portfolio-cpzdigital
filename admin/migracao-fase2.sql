@@ -53,6 +53,8 @@ as $$ select jsonb_build_object(
   'hoje', count(*) filter (where tipo='view' and created_at >= date_trunc('day', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo'),
   'd7',   count(*) filter (where tipo='view' and created_at > now() - interval '7 days'),
   'd30',  count(*) filter (where tipo='view' and created_at > now() - interval '30 days'),
+  'mes',  count(*) filter (where tipo='view' and created_at >= date_trunc('month', now() at time zone 'America/Sao_Paulo') at time zone 'America/Sao_Paulo'),
+  'total', count(*) filter (where tipo='view'),
   'cliques30', coalesce((select jsonb_object_agg(tipo,n) from (select tipo,count(*) n from public.eventos where card_id=cid and tipo<>'view' and created_at > now() - interval '30 days' group by tipo) x),'{}'::jsonb)
 ) from public.eventos where card_id=cid $$;
 

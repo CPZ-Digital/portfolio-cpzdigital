@@ -162,7 +162,7 @@ async function loadStats(){
   const {data,error}=isOwner?await sb.rpc('card_stats',{p_card:cur.id}):await sb.rpc('card_stats_edit',{p_token:TOKEN});
   if(error||!data)return $('stats').textContent='Estatísticas indisponíveis (rode a migração fase 2).';
   const c=Object.entries(data.cliques30||{}).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${LBL[k]||k}: ${n}`).join(' · ');
-  $('stats').innerHTML=`<b style="color:var(--text)">Visitas:</b> hoje ${data.hoje} · 7 dias ${data.d7} · 30 dias ${data.d30}<br><b style="color:var(--text)">Cliques (30 dias):</b> ${esc(c||'nenhum ainda')}<br><span>Suas próprias visitas logado no painel não contam.</span>`;
+  $('stats').innerHTML=`<b style="color:var(--text)">Visitas:</b> hoje ${data.hoje} · 7 dias ${data.d7} · este mês ${data.mes??'–'} · total ${data.total??'–'}<br><b style="color:var(--text)">Cliques (30 dias):</b> ${esc(c||'nenhum ainda')}<br><span>Suas próprias visitas logado no painel não contam.</span>`;
 }
 let rows_=[];
 $('expBtn').onclick=()=>{
