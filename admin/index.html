@@ -61,6 +61,7 @@ a.back{color:var(--accent2);font-size:.85rem;text-decoration:none;font-weight:70
       <label>Bio (aparece abaixo do nome)</label><textarea id="bio" maxlength="600"></textarea>
       <label>Foto</label><input type="file" id="avatarF" accept="image/*"><img class="pv hide" id="avatarP" style="border-radius:50%">
       <label>Logo da empresa</label><input type="file" id="logoF" accept="image/*"><img class="pv hide" id="logoP">
+      <label>Imagem de capa (fundo do topo)</label><input type="file" id="capaF" accept="image/*"><img class="pv hide" id="capaP" style="max-width:100%;max-height:120px"><button type="button" class="sec hide" id="capaX" style="margin-top:.4rem">Remover capa</button>
       <label>Cor do cartão</label><input type="color" id="accent">
 
       <h2>Contato</h2>
@@ -69,6 +70,7 @@ a.back{color:var(--accent2);font-size:.85rem;text-decoration:none;font-weight:70
       <label>Telefone fixo (opcional)</label><input id="telefone">
       <label>E-mail</label><input id="email" type="email">
       <label>Site</label><input id="site" placeholder="https://cpzdigital.com.br">
+      <label>Endereço comercial (vira botão "Como chegar" no mapa)</label><input id="endereco" maxlength="200" placeholder="Rua, número, bairro, cidade">
       <label>Instagram (@usuario ou link)</label><input id="instagram">
       <label>Outros links (um por linha: Nome | https://...)</label><textarea id="links" spellcheck="false" placeholder="LinkedIn | https://linkedin.com/in/fulano"></textarea>
 
@@ -95,7 +97,8 @@ a.back{color:var(--accent2);font-size:.85rem;text-decoration:none;font-weight:70
         <button type="button" class="danger" id="del">Excluir cartão</button>
       </div>
     </form>
-    <h2>Contatos recebidos</h2><div id="contacts"><div class="hint">Nenhum ainda.</div></div>
+    <h2>Visitas e cliques</h2><div id="stats" class="hint">Carregando…</div>
+    <h2>Contatos recebidos</h2><button type="button" class="sec hide" id="expBtn" style="margin-top:.4rem">Exportar contatos (CSV)</button><div id="contacts"><div class="hint">Nenhum ainda.</div></div>
   </div>
 </div>
 
@@ -105,8 +108,8 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const base=location.origin+location.pathname.replace(/admin\/?(index\.html)?$/,'');
 const TOKEN=new URLSearchParams(location.search).get('t');
-const FIELDS=['nome','cargo','empresa','bio','whatsapp','wa_msg','telefone','email','site','instagram','pix_key','pix_city','wifi_ssid','wifi_pass','accent'];
-let cur=null,isOwner=false,img={avatar:'',logo:''};
+const FIELDS=['nome','cargo','empresa','bio','whatsapp','wa_msg','telefone','email','site','instagram','endereco','pix_key','pix_city','wifi_ssid','wifi_pass','accent'];
+let cur=null,isOwner=false,img={avatar:'',logo:'',capa:''};
 const show=id=>['login','list','edit'].forEach(x=>$(x).classList.toggle('hide',x!==id));
 const say=(id,t,cls)=>{$(id).textContent=t;$(id).className='msg '+(cls||'');};
 
@@ -121,14 +124,16 @@ function shrink(file,max,mime,crop){return new Promise((res,rej)=>{
   im.onerror=rej;im.src=URL.createObjectURL(file);});}
 function bindImg(inp,prev,key,max,mime,crop){
   $(inp).onchange=async e=>{const f=e.target.files[0];if(!f)return;img[key]=await shrink(f,max,mime,crop);setPrev(prev,img[key]);};}
-const setPrev=(id,src)=>{$(id).src=src||'';$(id).classList.toggle('hide',!src);};
+const setPrev=(id,src)=>{$(id).src=src||'';$(id).classList.toggle('hide',!src);if(id==='capaP')$('capaX').classList.toggle('hide',!src);};
 bindImg('avatarF','avatarP','avatar',400,'image/jpeg',true);
+bindImg('capaF','capaP','capa',900,'image/jpeg',false);
+$('capaX').onclick=()=>{img.capa='';setPrev('capaP','');$('capaX').classList.add('hide');};
 bindImg('logoF','logoP','logo',400,'image/webp',false);
 
 function fill(d){
   cur=d;FIELDS.forEach(f=>$(f).value=d[f]||(f==='accent'?'#00aaff':''));$('waMsgWrap').classList.toggle('hide',!('wa_msg' in d));
   $('links').value=(d.links||[]).map(l=>`${l.label} | ${l.url}`).join('\n');
-  img.avatar=d.avatar||'';img.logo=d.logo||'';setPrev('avatarP',img.avatar);setPrev('logoP',img.logo);
+  img.avatar=d.avatar||'';img.logo=d.logo||'';setPrev('avatarP',img.avatar);setPrev('logoP',img.logo);img.capa=d.capa||'';setPrev('capaP',img.capa);loadStats();
   $('viewBtn').href=base+'c/'+d.slug;
   if(isOwner){$('verWrap').classList.toggle('hide',!('verificado' in d));$('verificado').checked=!!d.verificado;$('slug').value=d.slug;$('toggle').textContent=d.ativo?'Desativar cartão':'Reativar cartão';}
   show('edit');loadContacts();
@@ -137,7 +142,7 @@ function collect(){
   const o={};FIELDS.forEach(f=>{if(f==='wa_msg'&&!('wa_msg' in cur))return;o[f]=$(f).value.trim();});
   o.whatsapp=o.whatsapp.replace(/\D/g,'');if(o.whatsapp&&o.whatsapp.length<=11)o.whatsapp='55'+o.whatsapp;
   o.links=$('links').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?{label:'',url:l}:{label:l.slice(0,i).trim(),url:l.slice(i+1).trim()};});
-  o.avatar=img.avatar;o.logo=img.logo;return o;
+  o.avatar=img.avatar;o.logo=img.logo;o.capa=img.capa;return o;
 }
 $('form').onsubmit=async e=>{
   e.preventDefault();$('saveBtn').disabled=true;say('sMsg','Salvando…');
@@ -152,10 +157,24 @@ $('form').onsubmit=async e=>{
   $('viewBtn').href=base+'c/'+cur.slug;say('sMsg','Salvo! O cartão já está atualizado.','ok');
 };
 
+const LBL={vcf:'Salvou contato',tel:'Ligou',wa:'WhatsApp',mail:'E-mail',site:'Site',insta:'Instagram',link:'Outros links',qr:'QR Code',share:'Compartilhou',pix:'Pix',map:'Mapa'};
+async function loadStats(){
+  const {data,error}=isOwner?await sb.rpc('card_stats',{p_card:cur.id}):await sb.rpc('card_stats_edit',{p_token:TOKEN});
+  if(error||!data)return $('stats').textContent='Estatísticas indisponíveis (rode a migração fase 2).';
+  const c=Object.entries(data.cliques30||{}).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${LBL[k]||k}: ${n}`).join(' · ');
+  $('stats').innerHTML=`<b style="color:var(--text)">Visitas:</b> hoje ${data.hoje} · 7 dias ${data.d7} · 30 dias ${data.d30}<br><b style="color:var(--text)">Cliques (30 dias):</b> ${esc(c||'nenhum ainda')}<br><span>Suas próprias visitas logado no painel não contam.</span>`;
+}
+let rows_=[];
+$('expBtn').onclick=()=>{
+  const q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const csv='\ufeffNome,E-mail,Telefone,Data\r\n'+rows_.map(k=>[k.nome,k.email,k.telefone,new Date(k.created_at).toLocaleString('pt-BR')].map(q).join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='contatos-'+cur.slug+'.csv';a.click();
+};
 async function loadContacts(){
   let data;
   if(isOwner)({data}=await sb.from('contatos').select('*').eq('card_id',cur.id).order('created_at',{ascending:false}));
   else ({data}=await sb.rpc('get_contacts_edit',{p_token:TOKEN}));
+  rows_=data||[];$('expBtn').classList.toggle('hide',!rows_.length);
   $('contacts').innerHTML=(data&&data.length)?data.map(k=>{const t=(k.telefone||'').replace(/\D/g,'');
     return `<div class="ct"><b>${esc(k.nome)}</b><small>${esc(k.email)} ${esc(k.telefone)} · ${new Date(k.created_at).toLocaleDateString('pt-BR')}</small>${t?`<a href="https://wa.me/${t.length<=11?'55'+t:t}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;}).join(''):'<div class="hint">Nenhum ainda.</div>';
 }

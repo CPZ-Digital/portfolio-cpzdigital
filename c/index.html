@@ -67,6 +67,8 @@ const SLUG=(qs.get('s')||[...qs.keys()][0]||'').toLowerCase();
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeUrl=u=>{u=String(u||'').trim();if(!u)return'';if(!/^https?:\/\//i.test(u))u='https://'+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:'';};
+let OWNER=false;try{OWNER=Object.keys(localStorage).some(k=>k.startsWith('sb-wooepdcczasmxpzlofqt'));}catch(e){}
+const track=t=>{if(!OWNER)sb.rpc('track',{p_slug:SLUG,p_tipo:t}).then(()=>{},()=>{});};
 const digits=s=>String(s||'').replace(/\D/g,'');
 const IC={
  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
@@ -76,6 +78,7 @@ const IC={
  link:'<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1"/>',
  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"/>',
+ pin:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
  insta:'<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>'
 };
 function row(tag,attrs,ic,t,s,cls=''){return `<${tag} class="row ${cls}" ${attrs}><span class="ico"><svg viewBox="0 0 24 24">${IC[ic]||IC.link}</svg></span><span class="txt"><span class="t">${esc(t)}</span>${s?`<span class="s">${esc(s)}</span>`:''}</span></${tag}>`;}
@@ -115,18 +118,19 @@ async function render(){
   const img=u=>/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u||'')?u:'';
   const wa=digits(d.whatsapp),site=safeUrl(d.site);
   const ig=d.instagram?safeUrl(/^https?:|\./.test(d.instagram)?d.instagram:'instagram.com/'+d.instagram.replace(/^@/,'')):'';
-  let rows=row('a','id="vcfBtn" href="#"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
+  let rows=row('a','id="vcfBtn" data-t="vcf" href="#"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
   const tel=d.telefone||wa;
-  if(tel)rows+=row('a',`href="tel:${/^\+?[\d\s()-]+$/.test(tel)?esc(tel.replace(/[^\d+]/g,'')):'+'+wa}"`,'phone','Ligar',wa&&!d.telefone?'+'+wa:tel);
-  if(wa)rows+=row('a',A('https://wa.me/'+wa+(d.wa_msg?'?text='+encodeURIComponent(d.wa_msg):'')),'wa','WhatsApp','Chamar agora');
-  if(d.email)rows+=row('a',`href="mailto:${esc(d.email)}"`,'mail','E-mail',d.email);
-  if(site)rows+=row('a',A(site),'link','Site',site.replace(/^https?:\/\//,''));
-  if(ig)rows+=row('a',A(ig),'insta','Instagram',ig.replace(/^https?:\/\/(www\.)?/,''));
-  (d.links||[]).forEach(l=>{const u=safeUrl(l.url);if(u)rows+=row('a',A(u),'link',l.label||u,u.replace(/^https?:\/\//,''));});
-  rows+=row('button','id="qrBtn" type="button"','qr','Mostrar QR Code','Para a pessoa escanear')+row('button','id="shareBtn" type="button"','share','Compartilhar este cartão','Enviar para alguém');
+  if(tel)rows+=row('a',`data-t="tel" href="tel:${/^\+?[\d\s()-]+$/.test(tel)?esc(tel.replace(/[^\d+]/g,'')):'+'+wa}"`,'phone','Ligar',wa&&!d.telefone?'+'+wa:tel);
+  if(wa)rows+=row('a','data-t="wa" '+A('https://wa.me/'+wa+(d.wa_msg?'?text='+encodeURIComponent(d.wa_msg):'')),'wa','WhatsApp','Chamar agora');
+  if(d.email)rows+=row('a',`data-t="mail" href="mailto:${esc(d.email)}"`,'mail','E-mail',d.email);
+  if(site)rows+=row('a','data-t="site" '+A(site),'link','Site',site.replace(/^https?:\/\//,''));
+  if(ig)rows+=row('a','data-t="insta" '+A(ig),'insta','Instagram',ig.replace(/^https?:\/\/(www\.)?/,''));
+  (d.links||[]).forEach(l=>{const u=safeUrl(l.url);if(u)rows+=row('a','data-t="link" '+A(u),'link',l.label||u,u.replace(/^https?:\/\//,''));});
+  if(d.endereco)rows+=row('a','data-t="map" '+A('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.endereco)),'pin','Como chegar',d.endereco);
+  rows+=row('button','id="qrBtn" data-t="qr" type="button"','qr','Mostrar QR Code','Para a pessoa escanear')+row('button','id="shareBtn" data-t="share" type="button"','share','Compartilhar este cartão','Enviar para alguém');
 
   $('page').innerHTML=`
-  <div class="hero">
+  <div class="hero"${img(d.capa)?` style="background:linear-gradient(180deg,rgba(2,4,8,.45),var(--bg) 96%),url(${img(d.capa)}) center/cover"`:''}>
     ${img(d.avatar)?`<img class="avatar" src="${img(d.avatar)}" alt="">`:`<div class="avatar">${esc(initials)}</div>`}
     <h1>${esc(d.nome)}</h1>
     ${d.cargo?`<p class="role">${esc(d.cargo)}</p>`:''}
@@ -136,7 +140,7 @@ async function render(){
   </div>
   <div class="body">
     ${rows}
-    ${d.pix_key?`<details><summary>Pix</summary><div class="in">
+    ${d.pix_key?`<details><summary data-t="pix">Pix</summary><div class="in">
       <div class="qr" id="pixQr" style="margin-top:.4rem"></div>
       <div class="cap">Escaneie para pagar · valor em aberto<br>Chave: ${esc(fmtKey(d.pix_key))}</div>
       <div class="mono" id="pixCode"></div>
@@ -164,6 +168,8 @@ async function render(){
   </div>`;
 
   const qr=(el,text,size=140)=>new QRCode($(el),{text,width:size,height:size,colorDark:'#020408',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(t)track(t.dataset.t);});
+  track('view');
   $('qrNome').textContent=d.nome;
   $('qrBtn').onclick=()=>{const sz=Math.min(innerWidth-120,260);$('qrBig').innerHTML='';qr('qrBig',pageUrl(),sz);$('qrOv').style.display='flex';};
   const closeQr=()=>$('qrOv').style.display='none';$('qrOv').onclick=closeQr;$('qrX').onclick=closeQr;
