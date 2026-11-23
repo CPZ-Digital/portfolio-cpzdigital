@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<script>var m=location.pathname.match(/^\/c\/([a-z0-9-]{2,40})\/?$/i);if(m)location.replace("/c/?s="+m[1].toLowerCase());</script>
+<script>var m=location.pathname.match(/^\/c\/([a-z0-9-]{2,40})\/?$/i);if(m)location.replace("/c/?s="+m[1].toLowerCase()+(location.search?"&"+location.search.slice(1):""));</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Página não encontrada — CPZ Digital</title>

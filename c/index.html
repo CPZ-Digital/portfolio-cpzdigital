@@ -64,11 +64,13 @@ footer a{color:var(--accent2);text-decoration:none;font-weight:700;}
 const sb=window.supabase.createClient('https://wooepdcczasmxpzlofqt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2VwZGNjemFzbXhwemxvZnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzA0NTMsImV4cCI6MjA5Nzc0NjQ1M30.JY1nR9sBS7ejKVbvsMWCYg37r1fKoyKXE3LZyQqbkYA');
 const qs=new URLSearchParams(location.search);
 const SLUG=(qs.get('s')||[...qs.keys()][0]||'').toLowerCase();
+const ORIG=(qs.get('o')||'').toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,20);
+const ORIG_LBL={insta:'Instagram',nfc:'NFC',qr:'QR Code',cartao:'cartão físico',whats:'WhatsApp'};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeUrl=u=>{u=String(u||'').trim();if(!u)return'';if(!/^https?:\/\//i.test(u))u='https://'+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:'';};
 let OWNER=false;try{OWNER=Object.keys(localStorage).some(k=>k.startsWith('sb-wooepdcczasmxpzlofqt'));}catch(e){}
-const track=t=>{if(!OWNER)sb.rpc('track',{p_slug:SLUG,p_tipo:t}).then(()=>{},()=>{});};
+const track=t=>{if(!OWNER)sb.rpc('track',{p_slug:SLUG,p_tipo:t,p_origem:ORIG}).then(()=>{},()=>{});};
 const digits=s=>String(s||'').replace(/\D/g,'');
 const IC={
  save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
@@ -121,7 +123,7 @@ async function render(){
   let rows=row('a','id="vcfBtn" data-t="vcf" href="#"','save','Salvar contato na agenda','Nome, telefone, e-mail e foto','primary');
   const tel=d.telefone||wa;
   if(tel)rows+=row('a',`data-t="tel" href="tel:${/^\+?[\d\s()-]+$/.test(tel)?esc(tel.replace(/[^\d+]/g,'')):'+'+wa}"`,'phone','Ligar',wa&&!d.telefone?'+'+wa:tel);
-  if(wa)rows+=row('a','data-t="wa" '+A('https://wa.me/'+wa+(d.wa_msg?'?text='+encodeURIComponent(d.wa_msg):'')),'wa','WhatsApp','Chamar agora');
+  if(wa)rows+=row('a','data-t="wa" '+A('https://wa.me/'+wa+(d.wa_msg?'?text='+encodeURIComponent(d.wa_msg+(ORIG?' (via '+(ORIG_LBL[ORIG]||ORIG)+')':'')):'')),'wa','WhatsApp','Chamar agora');
   if(d.email)rows+=row('a',`data-t="mail" href="mailto:${esc(d.email)}"`,'mail','E-mail',d.email);
   if(site)rows+=row('a','data-t="site" '+A(site),'link','Site',site.replace(/^https?:\/\//,''));
   if(ig)rows+=row('a','data-t="insta" '+A(ig),'insta','Instagram',ig.replace(/^https?:\/\/(www\.)?/,''));
@@ -142,11 +144,8 @@ async function render(){
     ${rows}
     ${d.pix_key?`<details><summary data-t="pix">Pix</summary><div class="in">
       <div class="qr" id="pixQr" style="margin-top:.4rem"></div>
-      <div class="cap">Escaneie para pagar · valor em aberto<br>Chave: ${esc(fmtKey(d.pix_key))}</div>
-      <div class="mono" id="pixCode"></div>
+      <div class="cap">Escaneie ou copie o código e cole no app do seu banco<br>Chave: ${esc(fmtKey(d.pix_key))}</div>
       <button class="btn" id="pixCopy" type="button">Copiar código Pix</button>
-      <input id="pixVal" inputmode="decimal" placeholder="Quer cobrar um valor? Digite aqui" style="margin-top:1.2rem">
-      <button class="btn" id="pixGo" type="button" style="background:transparent;border:1px solid var(--line);color:var(--accent2)">Gerar com este valor</button>
     </div></details>`:''}
     ${d.wifi_ssid?`<details><summary>Wi-Fi</summary><div class="in">
       <div class="qr" id="wifiQr" style="margin-top:.4rem"></div><div class="cap">Aponte a câmera para conectar</div>
@@ -189,10 +188,7 @@ async function render(){
   const copy=(btn,txt,label)=>{navigator.clipboard.writeText(txt).then(()=>{btn.textContent='Copiado!';setTimeout(()=>btn.textContent=label,1500);});};
   if(d.pix_key){
     let code='';
-    const gen=v=>{code=pixPayload(d.pix_key,d.nome,d.pix_city,v);$('pixQr').innerHTML='';qr('pixQr',code,180);$('pixCode').textContent=code;
-      document.querySelector('#pixQr+.cap').firstChild.textContent=v>0?'Valor: R$ '+v.toFixed(2).replace('.',',')+' · escaneie para pagar':'Escaneie para pagar · valor em aberto';};
-    gen(0);
-    $('pixGo').onclick=()=>gen(parseFloat(($('pixVal').value||'0').replace(/\./g,'').replace(',','.'))||0);
+    code=pixPayload(d.pix_key,d.nome,d.pix_city,0);qr('pixQr',code,180);
     $('pixCopy').onclick=e=>copy(e.target,code,'Copiar código Pix');
   }
   if(d.wifi_ssid){
@@ -202,7 +198,7 @@ async function render(){
   }
   $('xForm').onsubmit=async e=>{
     e.preventDefault();const m=$('xMsg');m.textContent='Enviando…';
-    const {error}=await sb.rpc('add_contact',{p_slug:SLUG,p_nome:$('xNome').value,p_email:$('xEmail').value,p_tel:$('xTel').value});
+    const {error}=await sb.rpc('add_contact',{p_slug:SLUG,p_nome:$('xNome').value,p_email:$('xEmail').value,p_tel:$('xTel').value,p_origem:ORIG});
     m.textContent=error?'Não foi possível enviar. Tente de novo.':'Contato enviado! Obrigado.';
     if(!error)e.target.reset();
   };

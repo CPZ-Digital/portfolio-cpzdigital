@@ -162,12 +162,12 @@ async function loadStats(){
   const {data,error}=isOwner?await sb.rpc('card_stats',{p_card:cur.id}):await sb.rpc('card_stats_edit',{p_token:TOKEN});
   if(error||!data)return $('stats').textContent='Estatísticas indisponíveis (rode a migração fase 2).';
   const c=Object.entries(data.cliques30||{}).sort((a,b)=>b[1]-a[1]).map(([k,n])=>`${LBL[k]||k}: ${n}`).join(' · ');
-  $('stats').innerHTML=`<b style="color:var(--text)">Visitas:</b> hoje ${data.hoje} · 7 dias ${data.d7} · este mês ${data.mes??'–'} · total ${data.total??'–'}<br><b style="color:var(--text)">Cliques (30 dias):</b> ${esc(c||'nenhum ainda')}<br><span>Suas próprias visitas logado no painel não contam.</span>`;
+  $('stats').innerHTML=`<b style="color:var(--text)">Visitas:</b> hoje ${data.hoje} · 7 dias ${data.d7} · este mês ${data.mes??'–'} · total ${data.total??'–'}<br><b style="color:var(--text)">Cliques (30 dias):</b> ${esc(c||'nenhum ainda')}${Object.keys(data.origens30||{}).length?'<br><b style="color:var(--text)">Origem (30 dias):</b> '+esc(Object.entries(data.origens30).sort((a,b)=>b[1].v-a[1].v).map(([o,x])=>`${o}: ${x.v} visitas, ${x.c} cliques`).join(' · ')):''}<br><span>Suas próprias visitas logado no painel não contam.</span>`;
 }
 let rows_=[];
 $('expBtn').onclick=()=>{
   const q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
-  const csv='\ufeffNome,E-mail,Telefone,Data\r\n'+rows_.map(k=>[k.nome,k.email,k.telefone,new Date(k.created_at).toLocaleString('pt-BR')].map(q).join(',')).join('\r\n');
+  const csv='\ufeffNome,E-mail,Telefone,Origem,Data\r\n'+rows_.map(k=>[k.nome,k.email,k.telefone,k.origem||'direto',new Date(k.created_at).toLocaleString('pt-BR')].map(q).join(',')).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='contatos-'+cur.slug+'.csv';a.click();
 };
 async function loadContacts(){
@@ -176,7 +176,7 @@ async function loadContacts(){
   else ({data}=await sb.rpc('get_contacts_edit',{p_token:TOKEN}));
   rows_=data||[];$('expBtn').classList.toggle('hide',!rows_.length);
   $('contacts').innerHTML=(data&&data.length)?data.map(k=>{const t=(k.telefone||'').replace(/\D/g,'');
-    return `<div class="ct"><b>${esc(k.nome)}</b><small>${esc(k.email)} ${esc(k.telefone)} · ${new Date(k.created_at).toLocaleDateString('pt-BR')}</small>${t?`<a href="https://wa.me/${t.length<=11?'55'+t:t}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;}).join(''):'<div class="hint">Nenhum ainda.</div>';
+    return `<div class="ct"><b>${esc(k.nome)}</b><small>${esc(k.email)} ${esc(k.telefone)} · ${new Date(k.created_at).toLocaleDateString('pt-BR')}${k.origem?' · via '+esc(k.origem):''}</small>${t?`<a href="https://wa.me/${t.length<=11?'55'+t:t}" target="_blank" rel="noopener">WhatsApp</a>`:''}</div>`;}).join(''):'<div class="hint">Nenhum ainda.</div>';
 }
 
 // ---- dono
